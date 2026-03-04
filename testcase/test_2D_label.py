@@ -326,72 +326,100 @@ class TestLabel:
                               name="撤回参数",
                               attachment_type=allure.attachment_type.TEXT)
 
-                response = self.api_2d_label.dataset_withdraw(TestLabel.ok_dataset_id)
-                assertions.assert_code(response.status_code, 200)
-                response_data = response.json()
-                assertions.assert_in_text(response_data['msg'], '成功')
+                # 最多重试3次
+                max_retries = 3
+                retry_count = 0
+                response = None
+                response_data = None
 
-                # 记录撤回结果
-                allure.attach(f"撤回结果: {response_data['msg']}",
-                              name="样本撤回完成",
-                              attachment_type=allure.attachment_type.TEXT)
-
-                # 添加状态验证步骤
-                with allure.step("子步骤1：验证数据集状态已更新为'已撤回'") as step8_1:
-                    # 重新查询数据集状态
-                    response = self.api_2d_label.query_2d_dataset()
-                    assertions.assert_code(response.status_code, 200)
+                while retry_count < max_retries:
+                    response = self.api_2d_label.dataset_withdraw(TestLabel.ok_dataset_id)
                     response_data = response.json()
-                    assertions.assert_in_text(response_data['msg'], '成功')
 
-                    # 查找目标数据集
-                    dataset_list = response_data.get('data', {}).get('list', [])
-                    target_dataset = None
-                    for dataset in dataset_list:
-                        if dataset.get('datasetId') == TestLabel.ok_dataset_id:
-                            target_dataset = dataset
-                            break
+                    # 如果返回预期的成功消息，则跳出循环
+                    if response.status_code == 200 and '成功' in response_data.get('msg', ''):
+                        break
 
-                    if target_dataset:
-                        # 获取更新后的状态
-                        updated_status = target_dataset.get('status')
-
-                        # 记录状态信息
-                        status_info = (
-                            f"数据集ID: {TestLabel.ok_dataset_id}\n"
-                            f"数据集名称: 接口自动化ok图-{time_str}\n"
-                            f"当前状态: {updated_status}\n"
-                            f"预期状态: 2 (已撤回)"
-                        )
-                        allure.attach(status_info,
-                                      name="数据集状态验证",
-                                      attachment_type=allure.attachment_type.TEXT)
-
-                        # 验证状态
-                        if updated_status == 2:
-                            allure.attach("状态验证成功: 数据集已成功撤回",
-                                          name="状态验证结果",
-                                          attachment_type=allure.attachment_type.TEXT)
+                    # 如果返回ES插入中的错误消息，则等待1秒后重试
+                    if '当前数据集正在插入到es,无法删除' in response_data.get('msg', ''):
+                        retry_count += 1
+                        if retry_count < max_retries:
+                            time.sleep(1)  # 等待1秒后重试
+                            continue
                         else:
-                            # 状态异常处理
-                            status_map = {
-                                1: "已提交",
-                                2: "已撤回",
-                                6: "已发起重标"
-                            }
-                            status_name = status_map.get(updated_status, f"未知状态({updated_status})")
-
-                            error_msg = f"错误: 数据集状态异常！当前状态: {status_name}，预期状态: 2 (已撤回)"
+                            # 达到最大重试次数，抛出异常
+                            error_msg = f"错误: 数据集撤回失败，已重试{max_retries}次，仍然返回'{response_data.get('msg')}'"
                             allure.attach(error_msg,
-                                          name="状态验证失败",
+                                          name="撤回失败",
                                           attachment_type=allure.attachment_type.TEXT)
                             pytest.fail(error_msg)
                     else:
-                        error_msg = f"错误: 未找到数据集ID为 '{TestLabel.ok_dataset_id}' 的数据集"
-                        allure.attach(error_msg,
-                                      name="数据集查找失败",
-                                      attachment_type=allure.attachment_type.TEXT)
-                        pytest.fail(error_msg)
+                        # 其他错误情况直接失败
+                        assertions.assert_code(response.status_code, 200)
+                        assertions.assert_in_text(response_data['msg'], '成功')
+
+                # 如果成功了，继续后续步骤
+                if response and response.status_code == 200 and '成功' in response_data.get('msg', ''):
+                    allure.attach(f"撤回结果: {response_data['msg']}",
+                                  name="样本撤回完成",
+                                  attachment_type=allure.attachment_type.TEXT)
+
+                    # 添加状态验证步骤
+                    with allure.step("子步骤1：验证数据集状态已更新为'已撤回'") as step8_1:
+                        # 重新查询数据集状态
+                        response = self.api_2d_label.query_2d_dataset()
+                        assertions.assert_code(response.status_code, 200)
+                        response_data = response.json()
+                        assertions.assert_in_text(response_data['msg'], '成功')
+
+                        # 查找目标数据集
+                        dataset_list = response_data.get('data', {}).get('list', [])
+                        target_dataset = None
+                        for dataset in dataset_list:
+                            if dataset.get('datasetId') == TestLabel.ok_dataset_id:
+                                target_dataset = dataset
+                                break
+
+                        if target_dataset:
+                            # 获取更新后的状态
+                            updated_status = target_dataset.get('status')
+
+                            # 记录状态信息
+                            status_info = (
+                                f"数据集ID: {TestLabel.ok_dataset_id}\n"
+                                f"数据集名称: 接口自动化ok图-{time_str}\n"
+                                f"当前状态: {updated_status}\n"
+                                f"预期状态: 2 (已撤回)"
+                            )
+                            allure.attach(status_info,
+                                          name="数据集状态验证",
+                                          attachment_type=allure.attachment_type.TEXT)
+
+                            # 验证状态
+                            if updated_status == 2:
+                                allure.attach("状态验证成功: 数据集已成功撤回",
+                                              name="状态验证结果",
+                                              attachment_type=allure.attachment_type.TEXT)
+                            else:
+                                # 状态异常处理
+                                status_map = {
+                                    1: "已提交",
+                                    2: "已撤回",
+                                    6: "已发起重标"
+                                }
+                                status_name = status_map.get(updated_status, f"未知状态({updated_status})")
+
+                                error_msg = f"错误: 数据集状态异常！当前状态: {status_name}，预期状态: 2 (已撤回)"
+                                allure.attach(error_msg,
+                                              name="状态验证失败",
+                                              attachment_type=allure.attachment_type.TEXT)
+                                pytest.fail(error_msg)
+                        else:
+                            error_msg = f"错误: 未找到数据集ID为 '{TestLabel.ok_dataset_id}' 的数据集"
+                            allure.attach(error_msg,
+                                          name="数据集查找失败",
+                                          attachment_type=allure.attachment_type.TEXT)
+                            pytest.fail(error_msg)
             else:
                 error_msg = "错误: 缺少有效的datasetId，无法执行撤回操作"
                 allure.attach(error_msg,

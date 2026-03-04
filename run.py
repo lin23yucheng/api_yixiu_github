@@ -328,7 +328,7 @@ def run_together_tests():
         {"file": "testcase/test_class_original_model_training_v8.py", "deps": None},
         {"file": "testcase/test_model_base.py", "deps": None},
         {"file": "testcase/test_data_training_task.py", "deps": None},
-        # {"file": "testcase/test_simulation.py", "deps": None},
+        {"file": "testcase/test_simulation.py", "deps": None},
         {"file": "testcase/test_product_information.py", "deps": None},
         {"file": "testcase/test_product_samples.py", "deps": None},
         {"file": "testcase/test_eiir_label.py", "deps": None},
@@ -476,8 +476,8 @@ if __name__ == "__main__":
 
     try:
         # 选择执行模式
-        run_order_tests()  # 顺序执行
-        # run_together_tests()  # 并行执行
+        # run_order_tests()  # 顺序执行
+        run_together_tests()  # 并行执行
         # push_images_manual()  # bash手动推图
 
     finally:
