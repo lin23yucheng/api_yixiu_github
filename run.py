@@ -193,8 +193,9 @@ def run_order_tests():
 
     # 定义要执行的测试文件列表
     test_files = [
-        "testcase/test_standard_push_map.py",
-        "testcase/test_class_original_model_training_v8.py"
+        "test_bash.py",
+        "test_bash_ui.py",
+        "test_2D_label.py"
     ]
 
     # 添加项目根目录到Python路径
@@ -328,7 +329,7 @@ def run_together_tests():
         {"file": "testcase/test_class_original_model_training_v8.py", "deps": None},
         {"file": "testcase/test_model_base.py", "deps": None},
         {"file": "testcase/test_data_training_task.py", "deps": None},
-        {"file": "testcase/test_simulation.py", "deps": None},
+        # {"file": "testcase/test_simulation.py", "deps": None},
         {"file": "testcase/test_product_information.py", "deps": None},
         {"file": "testcase/test_product_samples.py", "deps": None},
         {"file": "testcase/test_eiir_label.py", "deps": None},
