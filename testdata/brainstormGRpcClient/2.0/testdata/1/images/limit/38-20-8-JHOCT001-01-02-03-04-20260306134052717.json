@@ -1,0 +1,113 @@
+{
+    "version": "1.0",
+    "imageData": null,
+    "imageWidth": 3520,
+    "imageHeight": 1824,
+    "imageDepth": 1,
+    "imagePath": "38-20-8-JHOCT001-01-02-03-04-20260306134052717.jpg",
+    "bashRes": null,
+    "finalRes": null,
+    "deepRes": null,
+    "dataRes": null,
+    "bashUserId": null,
+    "shapes": [
+        {
+            "label": "yiwu",
+            "disputeResult": null,
+            "disputeProcessTime": null,
+            "score": null,
+            "length": null,
+            "width": 1,
+            "radius": "",
+            "flags": {},
+            "tag": null,
+            "points": [
+                [
+                    3277.4107764190617,
+                    1169.119688036128
+                ],
+                [
+                    3306.010870458723,
+                    1171.919701933069
+                ],
+                [
+                    3312.210890844943,
+                    1173.7197108668167
+                ],
+                [
+                    3320.6109184649836,
+                    1173.519709874178
+                ],
+                [
+                    3347.6110072436845,
+                    1169.5196900214053
+                ],
+                [
+                    3352.2110223689447,
+                    1171.7197009404304
+                ],
+                [
+                    3354.6110302603847,
+                    1186.319773403051
+                ],
+                [
+                    3351.0110184232244,
+                    1201.319847850949
+                ],
+                [
+                    3347.6110072436845,
+                    1203.7198597626127
+                ],
+                [
+                    3324.6109316173834,
+                    1203.519858769974
+                ],
+                [
+                    3312.210890844943,
+                    1204.11986174789
+                ],
+                [
+                    3284.010798120522,
+                    1203.3198577773353
+                ],
+                [
+                    3265.6107376194814,
+                    1200.1198418951171
+                ],
+                [
+                    3268.6107474837813,
+                    1184.5197644693033
+                ],
+                [
+                    3271.6107573480817,
+                    1171.7197009404304
+                ]
+            ],
+            "deep_result": null,
+            "data_result": null,
+            "is_final": null,
+            "pixel_area": null,
+            "if_model": false,
+            "model_info": null,
+            "labeller_info": {
+                "name": "zhangxuxu",
+                "date": "2024-03-18 07:04:51"
+            },
+            "shape_type": "polygon",
+            "labelType": null,
+            "group_id": null,
+            "merge_type": null,
+            "need_cut": null,
+            "gt_label": null,
+            "pre_label": null,
+            "cluster_type": null
+        }
+    ],
+    "detectionArea": null,
+    "detectionAreaType": null,
+    "detectionComment": null,
+    "imageOffsetTop": 0.0,
+    "imageOffsetLeft": 0.0,
+    "top_point": null,
+    "time_Labeled": "2024-03-18"
+}

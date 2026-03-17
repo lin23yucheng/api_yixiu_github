@@ -1,0 +1,131 @@
+{
+    "version": "1.0",
+    "imageData": null,
+    "imageWidth": 1200,
+    "imageHeight": 600,
+    "imageDepth": 1,
+    "imagePath": "64-92-1-JHOCT001-01-02-03-04-20260306134052689.jpg",
+    "bashRes": null,
+    "finalRes": null,
+    "deepRes": null,
+    "dataRes": null,
+    "bashUserId": null,
+    "shapes": [
+        {
+            "label": "yashang-QX-S4-00",
+            "disputeResult": null,
+            "disputeProcessTime": null,
+            "score": null,
+            "length": null,
+            "width": 1,
+            "radius": "",
+            "flags": {},
+            "tag": null,
+            "points": [
+                [
+                    447.4,
+                    374.1
+                ],
+                [
+                    443.9,
+                    368.1
+                ],
+                [
+                    441.9,
+                    365.1
+                ],
+                [
+                    439.4,
+                    361.1
+                ],
+                [
+                    432.9,
+                    354.1
+                ],
+                [
+                    433.9,
+                    347.6
+                ],
+                [
+                    437.4,
+                    345.1
+                ],
+                [
+                    443.9,
+                    344.6
+                ],
+                [
+                    455.4,
+                    347.1
+                ],
+                [
+                    460.4,
+                    349.6
+                ],
+                [
+                    462.4,
+                    353.1
+                ],
+                [
+                    462.9,
+                    358.1
+                ],
+                [
+                    463.9,
+                    361.6
+                ],
+                [
+                    465.4,
+                    366.6
+                ],
+                [
+                    465.9,
+                    370.6
+                ],
+                [
+                    459.9,
+                    376.1
+                ],
+                [
+                    452.9,
+                    377.1
+                ],
+                [
+                    447.9,
+                    377.1
+                ]
+            ],
+            "id": "1792805686331412482",
+            "cut_id": null,
+            "deep_result": null,
+            "data_result": null,
+            "is_final": null,
+            "pixel_area": null,
+            "if_model": false,
+            "model_info": null,
+            "labeller_info": {
+                "name": "13815019153",
+                "date": "2024-05-21 14:32:38"
+            },
+            "shape_type": "polygon",
+            "labelType": null,
+            "group_id": null,
+            "merge_type": null,
+            "need_cut": null,
+            "gt_label": null,
+            "pre_label": null,
+            "type": null,
+            "post_process_label": null
+        }
+    ],
+    "detectionArea": null,
+    "detectionAreaType": null,
+    "detectionComment": null,
+    "imageOffsetTop": 0.0,
+    "imageOffsetLeft": 0.0,
+    "label": "ok",
+    "cls": "",
+    "score": 0,
+    "top_point": null,
+    "time_Labeled": "2024-05-21"
+}
