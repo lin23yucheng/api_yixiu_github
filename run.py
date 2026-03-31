@@ -193,9 +193,9 @@ def run_order_tests():
 
     # 定义要执行的测试文件列表
     test_files = [
-        "test_bash.py",
-        "test_bash_ui.py",
-        "test_2D_label.py"
+        "testcase/test_bash.py",
+        "testcase/test_bash_ui.py",
+        "testcase/test_2D_label.py"
     ]
 
     # 添加项目根目录到Python路径
@@ -314,8 +314,8 @@ def run_together_tests():
     """使用进程实现依赖关系的并行测试执行"""
     global allure_results, allure_report
 
-    reset_logs()  # 清除之前的日志
-    MyLog.info("===== 开始并行执行测试（带依赖关系） =====")
+    reset_logs()
+    MyLog.info("===== 开始并行执行测试 =====")
 
     # 定义任务依赖关系
     tasks = [
