@@ -232,6 +232,66 @@ class TestModelTrainingMetrics:
             allure.attach(diff_report, name="指标差异", attachment_type=allure.attachment_type.TEXT)
             return False
 
+    def _compare_indicators_with_specific_model_train_id(self, task_id, target_model_train_id, records):
+        """对比指定modelTrainId的训练指标与历史记录"""
+        if not records:
+            allure.attach("未找到任何训练记录", name="验证结果")
+            print("警告: 未找到任何训练记录")
+            return True  # 返回True表示跳过对比
+
+        # 找到目标训练记录
+        target_record = None
+        target_index = -1
+        for i, record in enumerate(records):
+            if record.get('modelTrainId') == target_model_train_id:
+                target_record = record
+                target_index = i
+                break
+
+        if not target_record:
+            allure.attach(f"未找到modelTrainId为{target_model_train_id}的训练记录", name="验证结果")
+            print(f"警告: 未找到modelTrainId为{target_model_train_id}的训练记录")
+            return True  # 返回True表示跳过对比
+
+        # 找到与当前记录相同caseId的历史记录进行对比
+        target_case_id = target_record.get('caseId')
+        historical_record = None
+
+        for i, record in enumerate(records):
+            if (record.get('caseId') == target_case_id and
+                    record.get('modelTrainId') != target_model_train_id):
+                historical_record = record
+                break
+
+        if not historical_record:
+            allure.attach("未找到可对比的历史训练记录", name="验证结果")
+            print("警告: 未找到可对比的历史训练记录，跳过指标对比")
+            return True  # 没有历史记录可以对比，跳过对比
+
+        # 解析指标
+        latest_indicators = self._parse_indicators(target_record.get('trainIndicators', {}))
+        oldest_indicators = self._parse_indicators(historical_record.get('trainIndicators', {}))
+
+        # 记录原始指标值到Allure
+        allure.attach(
+            f"原始最新指标值: {target_record.get('trainIndicators')}\n"
+            f"原始历史指标值: {historical_record.get('trainIndicators')}",
+            name="原始指标数据",
+            attachment_type=allure.attachment_type.TEXT
+        )
+
+        # 优化报告展示
+        with allure.step("训练指标详情"):
+            allure.attach(
+                f"最新训练指标:\n{self._format_metrics(latest_indicators)}\n\n"
+                f"历史训练指标:\n{self._format_metrics(oldest_indicators)}",
+                name="指标对比",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+        # 指标对比逻辑
+        return self._compare_indicators(latest_indicators, oldest_indicators)
+
     @allure.story("验证实例分割-Yolov8模型训练前后指标一致")
     @pytest.mark.order(1)
     def test_model_train_metrics_v8(self):
@@ -281,13 +341,20 @@ class TestModelTrainingMetrics:
                 computing_power_id = self._get_machine_id()
 
             with allure.step("子步骤3：组装参数并开始训练"):
+                # 在开始训练前获取训练前的记录数，用于识别新训练
+                pre_training_records = self._get_train_records(self.train_task_id_v8)
+                pre_training_count = len(pre_training_records) if pre_training_records else 0
+
                 self._start_training(case_id, "-1", computing_power_id, 30, 16, 0.0002,
                                      self.train_task_id_v8, modelCaseTemplateId
                                      )
 
         with allure.step("步骤2：监控训练进度"):
             try:
-                _, success = self._monitor_training_only(self.train_task_id_v8, "YoloV8实例分割训练")
+                model_train_id, success = self._monitor_training_only(self.train_task_id_v8, "YoloV8实例分割训练")
+                if not success:
+                    allure.attach("⚠️ 训练失败，跳过指标验证", name="测试结果")
+                    return
             except Exception as e:
                 allure.attach(f"训练监控失败: {str(e)}", name="错误详情")
                 allure.attach("⚠️ 训练失败，跳过指标验证", name="测试结果")
@@ -297,42 +364,14 @@ class TestModelTrainingMetrics:
             try:
                 records = self._get_train_records(self.train_task_id_v8)
 
-                # 健壮性检查
-                if not records:
-                    allure.attach("未找到任何训练记录", name="验证结果")
-                    print("警告: 未找到任何训练记录")
-                    return  # 或 continue，取决于具体需求
-                if len(records) < 2:
-                    allure.attach(f"训练记录不足2条，无法进行指标对比（当前记录数：{len(records)}）", name="验证结果")
-                    print(f"警告: 训练记录不足2条，无法进行指标对比（当前记录数：{len(records)}）")
-                    return
-
-                # 提取关键记录
-                latest_record = records[0]
-                oldest_record = records[1]
-
-                latest_indicators = self._parse_indicators(latest_record.get('trainIndicators', {}))
-                oldest_indicators = self._parse_indicators(oldest_record.get('trainIndicators', {}))
-
-                # 记录原始指标值到Allure
-                allure.attach(
-                    f"原始最新指标值: {latest_record.get('trainIndicators')}\n"
-                    f"原始历史指标值: {oldest_record.get('trainIndicators')}",
-                    name="原始指标数据",
-                    attachment_type=allure.attachment_type.TEXT
+                # 使用指定的modelTrainId进行指标对比
+                comparison_result = self._compare_indicators_with_specific_model_train_id(
+                    self.train_task_id_v8,
+                    model_train_id,
+                    records
                 )
 
-                # 优化报告展示
-                with allure.step("训练指标详情"):
-                    allure.attach(
-                        f"最新训练指标:\n{self._format_metrics(latest_indicators)}\n\n"
-                        f"历史训练指标:\n{self._format_metrics(oldest_indicators)}",
-                        name="指标对比",
-                        attachment_type=allure.attachment_type.TEXT
-                    )
-
-                # 指标对比逻辑
-                if not self._compare_indicators(latest_indicators, oldest_indicators):
+                if not comparison_result:
                     allure.attach("❌ 模型训练指标前后不一致", name="验证结果")
                     print("警告: Yolov8模型训练指标前后不一致")
 
@@ -398,12 +437,19 @@ class TestModelTrainingMetrics:
                 computing_power_id = self._get_machine_id()
 
             with allure.step("子步骤3：组装参数并开始训练"):
-                self._start_training(case_id, "-1",computing_power_id, 30, 16, 0.0002,
+                # 在开始训练前获取训练前的记录数，用于识别新训练
+                pre_training_records = self._get_train_records(self.train_task_id_v11)
+                pre_training_count = len(pre_training_records) if pre_training_records else 0
+
+                self._start_training(case_id, "-1", computing_power_id, 30, 16, 0.0002,
                                      self.train_task_id_v11, modelCaseTemplateId
                                      )
         with allure.step("步骤2：监控训练进度"):
             try:
-                _, success = self._monitor_training_only(self.train_task_id_v11, "YoloV11实例分割训练")
+                model_train_id, success = self._monitor_training_only(self.train_task_id_v11, "YoloV11实例分割训练")
+                if not success:
+                    allure.attach("⚠️ 训练失败，跳过指标验证", name="测试结果")
+                    return
             except Exception as e:
                 allure.attach(f"训练监控失败: {str(e)}", name="错误详情")
                 allure.attach("⚠️ 训练失败，跳过指标验证", name="测试结果")
@@ -413,42 +459,14 @@ class TestModelTrainingMetrics:
             try:
                 records = self._get_train_records(self.train_task_id_v11)
 
-                # 健壮性检查
-                if not records:
-                    allure.attach("未找到任何训练记录", name="验证结果")
-                    print("警告: 未找到任何训练记录")
-                    return
-                if len(records) < 2:
-                    allure.attach(f"训练记录不足2条，无法进行指标对比（当前记录数：{len(records)}）", name="验证结果")
-                    print(f"警告: 训练记录不足2条，无法进行指标对比（当前记录数：{len(records)}）")
-                    return
-
-                # 提取关键记录
-                latest_record = records[0]
-                oldest_record = records[1]
-
-                latest_indicators = self._parse_indicators(latest_record.get('trainIndicators', {}))
-                oldest_indicators = self._parse_indicators(oldest_record.get('trainIndicators', {}))
-
-                # 记录原始指标值到Allure
-                allure.attach(
-                    f"原始最新指标值: {latest_record.get('trainIndicators')}\n"
-                    f"原始历史指标值: {oldest_record.get('trainIndicators')}",
-                    name="原始指标数据",
-                    attachment_type=allure.attachment_type.TEXT
+                # 使用指定的modelTrainId进行指标对比
+                comparison_result = self._compare_indicators_with_specific_model_train_id(
+                    self.train_task_id_v11,
+                    model_train_id,
+                    records
                 )
 
-                # 优化报告展示
-                with allure.step("训练指标详情"):
-                    allure.attach(
-                        f"最新训练指标:\n{self._format_metrics(latest_indicators)}\n\n"
-                        f"历史训练指标:\n{self._format_metrics(oldest_indicators)}",
-                        name="指标对比",
-                        attachment_type=allure.attachment_type.TEXT
-                    )
-
-                # 指标对比逻辑
-                if not self._compare_indicators(latest_indicators, oldest_indicators):
+                if not comparison_result:
                     allure.attach("❌ 模型训练指标前后不一致", name="验证结果")
                     print("警告: Yolov11模型训练指标前后不一致")
 
@@ -514,13 +532,20 @@ class TestModelTrainingMetrics:
                 computing_power_id = self._get_machine_id()
 
             with allure.step("子步骤3：组装参数并开始训练"):
-                self._start_training(case_id,"-1", computing_power_id, 30, 16, 0.0002,
+                # 在开始训练前获取训练前的记录数，用于识别新训练
+                pre_training_records = self._get_train_records(self.train_task_id_v12)
+                pre_training_count = len(pre_training_records) if pre_training_records else 0
+
+                self._start_training(case_id, "-1", computing_power_id, 30, 16, 0.0002,
                                      self.train_task_id_v12, modelCaseTemplateId
                                      )
 
         with allure.step("步骤2：监控训练进度"):
             try:
-                _, success = self._monitor_training_only(self.train_task_id_v12, "YoloV12实例分割训练")
+                model_train_id, success = self._monitor_training_only(self.train_task_id_v12, "YoloV12实例分割训练")
+                if not success:
+                    allure.attach("⚠️ 训练失败，跳过指标验证", name="测试结果")
+                    return
             except Exception as e:
                 allure.attach(f"训练监控失败: {str(e)}", name="错误详情")
                 allure.attach("⚠️ 训练失败，跳过指标验证", name="测试结果")
@@ -530,42 +555,14 @@ class TestModelTrainingMetrics:
             try:
                 records = self._get_train_records(self.train_task_id_v12)
 
-                # 健壮性检查
-                if not records:
-                    allure.attach("未找到任何训练记录", name="验证结果")
-                    print("警告: 未找到任何训练记录")
-                    return
-                if len(records) < 2:
-                    allure.attach(f"训练记录不足2条，无法进行指标对比（当前记录数：{len(records)}）", name="验证结果")
-                    print(f"警告: 训练记录不足2条，无法进行指标对比（当前记录数：{len(records)}）")
-                    return
-
-                # 提取关键记录
-                latest_record = records[0]
-                oldest_record = records[1]
-
-                latest_indicators = self._parse_indicators(latest_record.get('trainIndicators', {}))
-                oldest_indicators = self._parse_indicators(oldest_record.get('trainIndicators', {}))
-
-                # 记录原始指标值到Allure
-                allure.attach(
-                    f"原始最新指标值: {latest_record.get('trainIndicators')}\n"
-                    f"原始历史指标值: {oldest_record.get('trainIndicators')}",
-                    name="原始指标数据",
-                    attachment_type=allure.attachment_type.TEXT
+                # 使用指定的modelTrainId进行指标对比
+                comparison_result = self._compare_indicators_with_specific_model_train_id(
+                    self.train_task_id_v12,
+                    model_train_id,
+                    records
                 )
 
-                # 优化报告展示
-                with allure.step("训练指标详情"):
-                    allure.attach(
-                        f"最新训练指标:\n{self._format_metrics(latest_indicators)}\n\n"
-                        f"历史训练指标:\n{self._format_metrics(oldest_indicators)}",
-                        name="指标对比",
-                        attachment_type=allure.attachment_type.TEXT
-                    )
-
-                # 指标对比逻辑
-                if not self._compare_indicators(latest_indicators, oldest_indicators):
+                if not comparison_result:
                     allure.attach("❌ 模型训练指标前后不一致", name="验证结果")
                     print("警告: Yolov12模型训练指标前后不一致")
 
@@ -630,13 +627,20 @@ class TestModelTrainingMetrics:
                 computing_power_id = self._get_machine_id()
 
             with allure.step("子步骤3：组装参数并开始训练"):
-                self._start_training(case_id,"2", computing_power_id, 10, 3, 0.0002,
+                # 在开始训练前获取训练前的记录数，用于识别新训练
+                pre_training_records = self._get_train_records(self.train_task_id_mtl)
+                pre_training_count = len(pre_training_records) if pre_training_records else 0
+
+                self._start_training(case_id, "2", computing_power_id, 10, 3, 0.0002,
                                      self.train_task_id_mtl, modelCaseTemplateId
                                      )
 
         with allure.step("步骤2：监控训练进度"):
             try:
-                _, success = self._monitor_training_only(self.train_task_id_mtl, "mtl-v1模型训练")
+                model_train_id, success = self._monitor_training_only(self.train_task_id_mtl, "mtl-v1模型训练")
+                if not success:
+                    allure.attach("⚠️ 训练失败，跳过指标验证", name="测试结果")
+                    return
             except Exception as e:
                 allure.attach(f"训练监控失败: {str(e)}", name="错误详情")
                 allure.attach("⚠️ 训练失败，跳过指标验证", name="测试结果")

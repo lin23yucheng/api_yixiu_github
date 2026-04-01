@@ -5,8 +5,8 @@
     "nodes": [
       {
         "position": {
-          "x": 309.70001220703125,
-          "y": 60.42499923706055
+          "x": 501.5,
+          "y": 86.375
         },
         "size": {
           "width": 120,
@@ -59,8 +59,8 @@
       },
       {
         "position": {
-          "x": 309.70001220703125,
-          "y": 422.9749946594238
+          "x": 501.5,
+          "y": 604.625
         },
         "size": {
           "width": 120,
@@ -113,8 +113,8 @@
       },
       {
         "position": {
-          "x": 70,
-          "y": 182
+          "x": 170,
+          "y": 240
         },
         "size": {
           "width": 120,
@@ -156,39 +156,37 @@
             }
           ]
         },
-        "id": "1950482698654920705",
+        "id": "2038853746635464706",
         "data": {
-          "modelManageId": "1950482698654920705",
-          "name": "勿动-组合固定使用-目标检测-V12",
-          "modelCaseTemplateId": "1704414001586651234",
-          "caseName": "Det V3 目标检测",
-          "caseId": "official_yolov8_det_model",
+          "modelManageId": "2038853746635464706",
+          "name": "历史数据验证指标_实例分割V11",
+          "modelCaseTemplateId": "7",
+          "caseName": "DetS V4 实例分割",
+          "caseId": "official_yolov11_seg_model",
           "labelList": [
             "shang",
             "liebian",
             "tuomo",
-            "yimo",
             "shanghen"
           ],
           "labelCnList": [
             "伤",
             "裂边",
             "脱模",
-            "溢墨",
             "伤痕"
           ],
           "modelSize": -1,
           "source": 2,
-          "trainTaskName": "接口自动化-20250729150840-目标检测",
-          "recordId": "1",
+          "trainTaskName": "历史数据验证指标_实例分割V11",
+          "recordId": "66",
           "status": 0,
           "iouThreshold": 0.45,
           "modelThreshold": 0.1,
           "cut": true,
           "main": true,
-          "modelPath": "/miai_mtl_repository/1873905652887785473/1950091093125050369/1950091562706743297/onnx",
+          "modelPath": "/miai_mtl_repository/1873905652887785473/1990322250098761729/2029775588207996930/onnx",
           "hasTsModel": false,
-          "createTime": "2025-07-30T09:05:00.844Z",
+          "createTime": "2026-03-31T05:40:02.206Z",
           "products": [
             {
               "createUser": null,
@@ -196,7 +194,7 @@
               "createTime": null,
               "updateTime": null,
               "modelManageProductId": null,
-              "modelManageId": "1950482698654920705",
+              "modelManageId": "2038853746635464706",
               "productId": "0",
               "photoId": "",
               "productName": null
@@ -204,26 +202,26 @@
           ],
           "verifyRecord": [
             {
-              "id": "1950092524083163138",
-              "modelManageId": "1950482698654920705",
-              "name": "接口自动化-20250729150840-目标检测-训练集-20250729151423",
-              "createTime": "2025-07-29T07:14:23.367Z",
+              "id": "2029777299391754242",
+              "modelManageId": "2038853746635464706",
+              "name": "历史数据验证指标_实例分割V11-训练集-20260306123314",
+              "createTime": "2026-03-06T04:33:14.271Z",
               "verifyType": 0,
               "clsReport": null,
               "remark": null
             },
             {
-              "id": "1950092200907845633",
-              "modelManageId": "1950482698654920705",
-              "name": "接口自动化-20250729150840-目标检测-验证集-20250729151306",
-              "createTime": "2025-07-29T07:13:06.316Z",
+              "id": "2029776219459137538",
+              "modelManageId": "2038853746635464706",
+              "name": "历史数据验证指标_实例分割V11-验证集-20260306122856",
+              "createTime": "2026-03-06T04:28:56.795Z",
               "verifyType": 0,
               "clsReport": null,
               "remark": null
             }
           ],
           "parentId": "main_node",
-          "modelName": "勿动-组合固定使用-目标检测-V12",
+          "modelName": "历史数据验证指标_实例分割V11",
           "nodeClass": "custom-node"
         },
         "zIndex": 3,
@@ -231,8 +229,8 @@
       },
       {
         "position": {
-          "x": 230,
-          "y": 182
+          "x": 500,
+          "y": 240
         },
         "size": {
           "width": 120,
@@ -274,11 +272,127 @@
             }
           ]
         },
-        "id": "1950482452768043009",
+        "id": "2038853084233228289",
         "data": {
-          "modelManageId": "1950482452768043009",
-          "name": "勿动-组合固定使用-实力分割-V8",
-          "modelCaseTemplateId": "1704414001586651237",
+          "modelManageId": "2038853084233228289",
+          "name": "历史数据验证指标_实例分割V12",
+          "modelCaseTemplateId": "5",
+          "caseName": "DetS V3 实例分割",
+          "caseId": "official_yolov12_seg_model",
+          "labelList": [
+            "shang",
+            "liebian",
+            "tuomo",
+            "shanghen"
+          ],
+          "labelCnList": [
+            "伤",
+            "裂边",
+            "脱模",
+            "伤痕"
+          ],
+          "modelSize": -1,
+          "source": 2,
+          "trainTaskName": "历史数据验证指标_实例分割V12",
+          "recordId": "70",
+          "status": 0,
+          "iouThreshold": 0.45,
+          "modelThreshold": 0.1,
+          "cut": true,
+          "main": true,
+          "modelPath": "/miai_mtl_repository/1873905652887785473/1950095237651050497/2029766141603590146/onnx",
+          "hasTsModel": false,
+          "createTime": "2026-03-31T05:37:38.436Z",
+          "products": [
+            {
+              "createUser": null,
+              "updateUser": null,
+              "createTime": null,
+              "updateTime": null,
+              "modelManageProductId": null,
+              "modelManageId": "2038853084233228289",
+              "productId": "0",
+              "photoId": "",
+              "productName": null
+            }
+          ],
+          "verifyRecord": [
+            {
+              "id": "2029767991623004162",
+              "modelManageId": "2038853084233228289",
+              "name": "历史数据验证指标_实例分割V12-训练集-20260306115615",
+              "createTime": "2026-03-06T03:56:15.126Z",
+              "verifyType": 0,
+              "clsReport": null,
+              "remark": null
+            },
+            {
+              "id": "2029766980942540801",
+              "modelManageId": "2038853084233228289",
+              "name": "历史数据验证指标_实例分割V12-验证集-20260306115214",
+              "createTime": "2026-03-06T03:52:14.162Z",
+              "verifyType": 0,
+              "clsReport": null,
+              "remark": null
+            }
+          ],
+          "parentId": "main_node",
+          "modelName": "历史数据验证指标_实例分割V12",
+          "nodeClass": "custom-node"
+        },
+        "zIndex": 4,
+        "parent": "main_node"
+      },
+      {
+        "position": {
+          "x": 840,
+          "y": 243.125
+        },
+        "size": {
+          "width": 120,
+          "height": 32
+        },
+        "view": "html-view",
+        "shape": "custom-node-html",
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "magnet": true,
+                  "stroke": "black",
+                  "r": 4
+                }
+              }
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "magnet": true,
+                  "stroke": "black",
+                  "r": 4
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "id": "port_1",
+              "group": "bottom"
+            },
+            {
+              "id": "port_2",
+              "group": "top"
+            }
+          ]
+        },
+        "id": "2038852844629417985",
+        "data": {
+          "modelManageId": "2038852844629417985",
+          "name": "历史数据验证指标_实例分割V8",
+          "modelCaseTemplateId": "2",
           "caseName": "DetS V2 实例分割",
           "caseId": "official_yolov8_seg_model",
           "labelList": [
@@ -296,15 +410,15 @@
           "modelSize": -1,
           "source": 2,
           "trainTaskName": "历史数据验证指标_实例分割V8",
-          "recordId": "1",
+          "recordId": "79",
           "status": 0,
           "iouThreshold": 0.45,
           "modelThreshold": 0.1,
           "cut": true,
           "main": true,
-          "modelPath": "/miai_mtl_repository/1873905652887785473/1950094749337595906/1950095838099222529/onnx",
+          "modelPath": "/miai_mtl_repository/1873905652887785473/1950094749337595906/2029795152161517570/onnx",
           "hasTsModel": true,
-          "createTime": "2025-07-30T09:04:03.272Z",
+          "createTime": "2026-03-31T05:36:31.974Z",
           "products": [
             {
               "createUser": null,
@@ -312,7 +426,7 @@
               "createTime": null,
               "updateTime": null,
               "modelManageProductId": null,
-              "modelManageId": "1950482452768043009",
+              "modelManageId": "2038852844629417985",
               "productId": "0",
               "photoId": "",
               "productName": null
@@ -320,142 +434,26 @@
           ],
           "verifyRecord": [
             {
-              "id": "1950096883969896450",
-              "modelManageId": "1950482452768043009",
-              "name": "历史数据验证指标_实例分割V8-训练集-20250729153142",
-              "createTime": "2025-07-29T07:31:42.845Z",
+              "id": "2029799647008370689",
+              "modelManageId": "2038852844629417985",
+              "name": "历史数据验证指标_实例分割V8-训练集-20260306140202",
+              "createTime": "2026-03-06T06:02:02.359Z",
               "verifyType": 0,
               "clsReport": null,
               "remark": null
             },
             {
-              "id": "1950096481916497922",
-              "modelManageId": "1950482452768043009",
-              "name": "历史数据验证指标_实例分割V8-验证集-20250729153006",
-              "createTime": "2025-07-29T07:30:06.987Z",
-              "verifyType": 0,
-              "clsReport": null,
-              "remark": null
-            }
-          ],
-          "parentId": "main_node",
-          "modelName": "勿动-组合固定使用-实力分割-V8",
-          "nodeClass": "custom-node"
-        },
-        "zIndex": 4,
-        "parent": "main_node"
-      },
-      {
-        "position": {
-          "x": 390,
-          "y": 182
-        },
-        "size": {
-          "width": 120,
-          "height": 32
-        },
-        "view": "html-view",
-        "shape": "custom-node-html",
-        "ports": {
-          "groups": {
-            "top": {
-              "position": "top",
-              "attrs": {
-                "circle": {
-                  "magnet": true,
-                  "stroke": "black",
-                  "r": 4
-                }
-              }
-            },
-            "bottom": {
-              "position": "bottom",
-              "attrs": {
-                "circle": {
-                  "magnet": true,
-                  "stroke": "black",
-                  "r": 4
-                }
-              }
-            }
-          },
-          "items": [
-            {
-              "id": "port_1",
-              "group": "bottom"
-            },
-            {
-              "id": "port_2",
-              "group": "top"
-            }
-          ]
-        },
-        "id": "1950481866765053954",
-        "data": {
-          "modelManageId": "1950481866765053954",
-          "name": "勿动-组合固定使用-实力分割-V12",
-          "modelCaseTemplateId": "1704414001586651237",
-          "caseName": "DetS V3 实例分割",
-          "caseId": "official_yolov8_seg_model",
-          "labelList": [
-            "shang",
-            "liebian",
-            "tuomo",
-            "shanghen"
-          ],
-          "labelCnList": [
-            "伤",
-            "裂边",
-            "脱模",
-            "伤痕"
-          ],
-          "modelSize": -1,
-          "source": 2,
-          "trainTaskName": "历史数据验证指标_实例分割V12",
-          "recordId": "1",
-          "status": 0,
-          "iouThreshold": 0.45,
-          "modelThreshold": 0.1,
-          "cut": true,
-          "main": true,
-          "modelPath": "/miai_mtl_repository/1873905652887785473/1950095237651050497/1950095878045773826/onnx",
-          "hasTsModel": false,
-          "createTime": "2025-07-30T09:01:40.966Z",
-          "products": [
-            {
-              "createUser": null,
-              "updateUser": null,
-              "createTime": null,
-              "updateTime": null,
-              "modelManageProductId": null,
-              "modelManageId": "1950481866765053954",
-              "productId": "0",
-              "photoId": "",
-              "productName": null
-            }
-          ],
-          "verifyRecord": [
-            {
-              "id": "1950097567838580738",
-              "modelManageId": "1950481866765053954",
-              "name": "历史数据验证指标_实例分割V12-训练集-20250729153425",
-              "createTime": "2025-07-29T07:34:25.891Z",
-              "verifyType": 0,
-              "clsReport": null,
-              "remark": null
-            },
-            {
-              "id": "1950096860750229505",
-              "modelManageId": "1950481866765053954",
-              "name": "历史数据验证指标_实例分割V12-验证集-20250729153137",
-              "createTime": "2025-07-29T07:31:37.309Z",
+              "id": "2029799093695787009",
+              "modelManageId": "2038852844629417985",
+              "name": "历史数据验证指标_实例分割V8-验证集-20260306135950",
+              "createTime": "2026-03-06T05:59:50.438Z",
               "verifyType": 0,
               "clsReport": null,
               "remark": null
             }
           ],
           "parentId": "main_node",
-          "modelName": "勿动-组合固定使用-实力分割-V12",
+          "modelName": "历史数据验证指标_实例分割V8",
           "nodeClass": "custom-node"
         },
         "zIndex": 5,
@@ -463,8 +461,8 @@
       },
       {
         "position": {
-          "x": 550,
-          "y": 182
+          "x": 501.5,
+          "y": 415.875
         },
         "size": {
           "width": 120,
@@ -506,39 +504,33 @@
             }
           ]
         },
-        "id": "1950482805886496770",
+        "id": "2039164480695197698",
         "data": {
-          "modelManageId": "1950482805886496770",
-          "name": "勿动-组合固定使用-目标检测-V8",
-          "modelCaseTemplateId": "1704414001586651234",
-          "caseName": "Det V2 目标检测",
-          "caseId": "official_yolov8_det_model",
+          "modelManageId": "2039164480695197698",
+          "name": "分类切图-脱模-组合使用",
+          "modelCaseTemplateId": "4",
+          "caseName": "Cls V2 图像分类",
+          "caseId": "official_yolov8_cls_model",
           "labelList": [
-            "shang",
-            "liebian",
-            "tuomo",
-            "shanghen",
-            "yimo"
+            "ok",
+            "tuomo"
           ],
           "labelCnList": [
-            "伤",
-            "裂边",
-            "脱模",
-            "伤痕",
-            "溢墨"
+            "ok",
+            "脱模"
           ],
           "modelSize": -1,
           "source": 2,
-          "trainTaskName": "接口自动化-20250729145706-目标检测",
-          "recordId": "1",
+          "trainTaskName": "分类切图-脱模",
+          "recordId": "3",
           "status": 0,
           "iouThreshold": 0.45,
-          "modelThreshold": 0.1,
+          "modelThreshold": 0.01,
           "cut": true,
-          "main": true,
-          "modelPath": "/miai_mtl_repository/1873905652887785473/1950088180784902145/1950088737448734722/onnx",
+          "main": false,
+          "modelPath": "/miai_mtl_repository/1873905652887785473/2039154046852292609/2039163448141438977/onnx",
           "hasTsModel": true,
-          "createTime": "2025-07-30T09:05:28.854Z",
+          "createTime": "2026-04-01T02:14:46.581Z",
           "products": [
             {
               "createUser": null,
@@ -546,7 +538,7 @@
               "createTime": null,
               "updateTime": null,
               "modelManageProductId": null,
-              "modelManageId": "1950482805886496770",
+              "modelManageId": "2039164480695197698",
               "productId": "0",
               "photoId": "",
               "productName": null
@@ -554,30 +546,30 @@
           ],
           "verifyRecord": [
             {
-              "id": "1950089672069689346",
-              "modelManageId": "1950482805886496770",
-              "name": "接口自动化-20250729145706-目标检测-训练集-20250729150303",
-              "createTime": "2025-07-29T07:03:03.394Z",
+              "id": "2039164166055288833",
+              "modelManageId": "2039164480695197698",
+              "name": "分类切图-脱模-训练集-20260401101317",
+              "createTime": "2026-04-01T02:13:17.683Z",
               "verifyType": 0,
-              "clsReport": null,
+              "clsReport": "{\"count\": {\"ok\": 5, \"tuomo\": 288}, \"report\": [[\"类别\", \"tuomo\", \"ok\"], [\"tuomo\", \"288\", \"1\"], [\"ok\", \"0\", \"4\"], [\"Recall\", \"100.00%\", \"80.00%\"]]}",
               "remark": null
             },
             {
-              "id": "1950089380825608194",
-              "modelManageId": "1950482805886496770",
-              "name": "接口自动化-20250729145706-目标检测-验证集-20250729150153",
-              "createTime": "2025-07-29T07:01:53.956Z",
+              "id": "2039164018495479809",
+              "modelManageId": "2039164480695197698",
+              "name": "分类切图-脱模-验证集-20260401101242",
+              "createTime": "2026-04-01T02:12:42.503Z",
               "verifyType": 0,
-              "clsReport": null,
+              "clsReport": "{\"count\": {\"ok\": 5, \"tuomo\": 123}, \"report\": [[\"类别\", \"tuomo\", \"ok\"], [\"tuomo\", \"123\", \"2\"], [\"ok\", \"0\", \"3\"], [\"Recall\", \"100.00%\", \"60.00%\"]]}",
               "remark": null
             }
           ],
-          "parentId": "main_node",
-          "modelName": "勿动-组合固定使用-目标检测-V8",
+          "parentId": "assist_node",
+          "modelName": "分类切图-脱模-组合使用",
           "nodeClass": "custom-node"
         },
         "zIndex": 6,
-        "parent": "main_node"
+        "parent": "assist_node"
       }
     ],
     "edges": [
@@ -589,7 +581,7 @@
             "strokeWidth": 1
           }
         },
-        "id": "9587e0b4-360c-40b7-b82a-f1d6ce2f4f60",
+        "id": "ea9a75f8-04af-452e-9c6d-4bf37902e141",
         "router": {
           "name": "manhattan",
           "args": {
@@ -618,7 +610,7 @@
           "port": "port_1"
         },
         "target": {
-          "cell": "1950482698654920705",
+          "cell": "2038853746635464706",
           "port": "port_2"
         }
       },
@@ -630,7 +622,7 @@
             "strokeWidth": 1
           }
         },
-        "id": "2e417d0d-598e-4698-b4d1-0e63365ce16b",
+        "id": "22fcf84b-73a3-4913-b9a1-db9c4cf2f6b2",
         "router": {
           "name": "manhattan",
           "args": {
@@ -655,7 +647,7 @@
         },
         "zIndex": 2,
         "source": {
-          "cell": "1950482698654920705",
+          "cell": "2038853746635464706",
           "port": "port_1"
         },
         "target": {
@@ -671,7 +663,7 @@
             "strokeWidth": 1
           }
         },
-        "id": "1b7b15f0-c4fb-4708-abcb-84d2175cec73",
+        "id": "ecc6502e-ee43-4c01-a9a0-a0d5bae8e8ee",
         "router": {
           "name": "manhattan",
           "args": {
@@ -700,7 +692,7 @@
           "port": "port_1"
         },
         "target": {
-          "cell": "1950482452768043009",
+          "cell": "2038853084233228289",
           "port": "port_2"
         }
       },
@@ -712,7 +704,7 @@
             "strokeWidth": 1
           }
         },
-        "id": "9772f2af-80ce-473e-9d7a-e844724c1855",
+        "id": "71db285f-da6b-47ee-b92f-ef366d599804",
         "router": {
           "name": "manhattan",
           "args": {
@@ -737,7 +729,7 @@
         },
         "zIndex": 2,
         "source": {
-          "cell": "1950482452768043009",
+          "cell": "2038853084233228289",
           "port": "port_1"
         },
         "target": {
@@ -753,7 +745,7 @@
             "strokeWidth": 1
           }
         },
-        "id": "9c4db85b-3f19-4ed2-8031-33ee5115615c",
+        "id": "0d200a05-1034-446d-b21e-3612b0711407",
         "router": {
           "name": "manhattan",
           "args": {
@@ -782,7 +774,7 @@
           "port": "port_1"
         },
         "target": {
-          "cell": "1950481866765053954",
+          "cell": "2038852844629417985",
           "port": "port_2"
         }
       },
@@ -794,7 +786,7 @@
             "strokeWidth": 1
           }
         },
-        "id": "e86eeec2-862f-462d-b9e6-3767186c59e7",
+        "id": "da776814-d378-4d37-8c3c-4b72df13bc07",
         "router": {
           "name": "manhattan",
           "args": {
@@ -819,7 +811,7 @@
         },
         "zIndex": 2,
         "source": {
-          "cell": "1950481866765053954",
+          "cell": "2038852844629417985",
           "port": "port_1"
         },
         "target": {
@@ -835,7 +827,7 @@
             "strokeWidth": 1
           }
         },
-        "id": "f8aed9bd-5d93-40ff-8106-f46a50f3efea",
+        "id": "7a5d0d12-153f-4477-8ce0-0a85c45f739c",
         "router": {
           "name": "manhattan",
           "args": {
@@ -860,11 +852,11 @@
         },
         "zIndex": 2,
         "source": {
-          "cell": "0",
+          "cell": "2039164480695197698",
           "port": "port_1"
         },
         "target": {
-          "cell": "1950482805886496770",
+          "cell": "1",
           "port": "port_2"
         }
       },
@@ -876,7 +868,7 @@
             "strokeWidth": 1
           }
         },
-        "id": "2aaf61e5-854e-4fb6-836d-e29123d3f33d",
+        "id": "963d6db4-1375-4bda-a65c-1788682819f0",
         "router": {
           "name": "manhattan",
           "args": {
@@ -895,17 +887,99 @@
             "excludeShapes": [
               "lane",
               "custom-html"
-            ],
-            "padding": 10
+            ]
           }
         },
+        "connector": {},
         "zIndex": 2,
         "source": {
-          "cell": "1950482805886496770",
+          "cell": "2038853746635464706",
           "port": "port_1"
         },
         "target": {
-          "cell": "1",
+          "cell": "2039164480695197698",
+          "port": "port_2"
+        }
+      },
+      {
+        "shape": "edge",
+        "attrs": {
+          "line": {
+            "stroke": "#1018204D",
+            "strokeWidth": 1
+          }
+        },
+        "id": "874995ea-6f77-4a12-85bb-8215efdfcfec",
+        "router": {
+          "name": "manhattan",
+          "args": {
+            "startDirections": [
+              "top",
+              "right",
+              "bottom",
+              "left"
+            ],
+            "endDirections": [
+              "top",
+              "right",
+              "bottom",
+              "left"
+            ],
+            "excludeShapes": [
+              "lane",
+              "custom-html"
+            ]
+          }
+        },
+        "connector": {},
+        "zIndex": 2,
+        "source": {
+          "cell": "2038853084233228289",
+          "port": "port_1"
+        },
+        "target": {
+          "cell": "2039164480695197698",
+          "port": "port_2"
+        }
+      },
+      {
+        "shape": "edge",
+        "attrs": {
+          "line": {
+            "stroke": "#1018204D",
+            "strokeWidth": 1
+          }
+        },
+        "id": "2b2169c1-6313-482c-b77e-e25b7e32773b",
+        "router": {
+          "name": "manhattan",
+          "args": {
+            "startDirections": [
+              "top",
+              "right",
+              "bottom",
+              "left"
+            ],
+            "endDirections": [
+              "top",
+              "right",
+              "bottom",
+              "left"
+            ],
+            "excludeShapes": [
+              "lane",
+              "custom-html"
+            ]
+          }
+        },
+        "connector": {},
+        "zIndex": 2,
+        "source": {
+          "cell": "2038852844629417985",
+          "port": "port_1"
+        },
+        "target": {
+          "cell": "2039164480695197698",
           "port": "port_2"
         }
       }

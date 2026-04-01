@@ -11,7 +11,7 @@ IMAGE_CONFIG = {
     1: "",  # yolo训练
     2: "",  # yolo模型格式转换
     3: "",  # yolo测试
-    4: "",  # 边端监控
+    4: "mtl-sidecar-image:20260401100153-294-fat",  # 边端监控sidecar-image
     5: "",  # 切图
     6: "",  # 训练
     7: "",  # triton推理
@@ -21,6 +21,9 @@ IMAGE_CONFIG = {
     11: "",  # cv
     12: ""   # yolo12训练
 }
+
+# 固定的镜像仓库前缀
+IMAGE_REGISTRY_PREFIX = "hub.svfactory.com.cn:6443/ty/"
 
 
 @allure.feature("场景：自动化贴镜像")
@@ -37,8 +40,10 @@ class TestMirror:
         """
         updated_count = 0
 
-        for image_type, image_path in IMAGE_CONFIG.items():
-            if image_path:  # 只处理非空的镜像路径
+        for image_type, image_suffix in IMAGE_CONFIG.items():
+            if image_suffix:  # 只处理非空的镜像路径
+                # 自动添加固定前缀
+                image_path = IMAGE_REGISTRY_PREFIX + image_suffix
                 try:
                     # 根据image_type获取对应的描述
                     type_descriptions = {
@@ -98,7 +103,6 @@ class TestMirror:
 
 
 if __name__ == "__main__":
-    # pass
     test_instance = TestMirror()
     test_instance.setup_class()
     test_instance.test_update_images()
