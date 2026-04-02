@@ -98,7 +98,7 @@ class ApiModelTrain:
     def query_train_records(self, trainTaskId):
         url = f"{env}/miai/brainstorm/newmodeltrain/page"
         payload = {"data": {"trainTaskId": trainTaskId, "onlyMachineTable": False},
-                   "page": {"pageIndex": 1, "pageSize": 100}}
+                   "page": {"pageIndex": 1, "pageSize": 1000}}
 
         response = self.client.post_with_retry(url, json=payload)
         return response
@@ -110,6 +110,13 @@ class ApiModelTrain:
                    "modelThreshold": 0.1, "iouThreshold": 0.45, "modelTrainId": modelTrainId}
 
         response = self.client.post_with_retry(url, json=payload)
+        return response
+
+    # 模型删除
+    def delete_model(self, modelTrainId):
+        url = f"{env}/miai/brainstorm/newmodeltrain/delete/{modelTrainId}"
+
+        response = self.client.post_with_retry(url, json=None)
         return response
 
 
