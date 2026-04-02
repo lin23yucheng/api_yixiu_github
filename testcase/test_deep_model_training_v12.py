@@ -55,30 +55,6 @@ class TestDeepModelTraining:
         cls.photoId_ok = ast.literal_eval(config.get('persistent_ids', 'photo_id_ok'))
         cls.machine_name = config.get('persistent_ids', 'machine_name')
 
-    # def teardown_class(cls):
-    #     """将生成的ID写入配置文件"""
-    #     if not cls.trainTaskId or not cls.modelTrainId:
-    #         print("警告：任务ID或模型ID未获取到，可能流程未完成")
-    #         return
-    #
-    #     config_path = os.path.abspath(os.path.join(
-    #         os.path.dirname(os.path.dirname(__file__)),  # 向上一级，回到项目根目录
-    #         'config/env_config.ini'  # 根目录下的 config 目录
-    #     ))
-    #
-    #     config = ConfigParser()
-    #     config.read(config_path)
-    #
-    #     if not config.has_section('persistent_ids'):
-    #         config.add_section('persistent_ids')
-    #
-    #     config.set('persistent_ids', 'train_task_id_v12', str(cls.trainTaskId))
-    #     config.set('persistent_ids', 'model_train_id_v12', str(cls.modelTrainId))
-    #
-    #     with open(config_path, 'w') as f:
-    #         config.write(f)
-    #     print(f"已写入配置文件：{config_path}")
-
     def _monitor_analysis_progress(self, analysis_type, api_call):
         """通用的状态监控方法"""
         start_time = time.time()
