@@ -1,12 +1,12 @@
 {
-    "access_token": "QEtAbkFmQKPl9Pnsk7RmOAVEtjOWbZI8+5V+DETTsBVuXSUpKibJWi1b0AF4lzZiVo8bErnejdTgut3ev/vdsSjMtS9gtxeisIsB2LeLHLdLozqEhrVKSStvUSQkEGftR/TlewtLcqR3XkL/axuQyMkk2sy9ZnbVc5hHxrRREeK1/1DrSSl2V6p4i6/S69rmPTuaexPsv+iExq+/Hk+rAQ==",
-    "device_no": "JHOCT001",
-    "product_name": "JHOCT001",
+    "access_token": "QEtAbkFmQKPl9Pnsk7RmOLbivQws4g83Zv02jZMtSKxSE1/h+89lneIv7CSLSIw3Vo8bErnejdTgut3ev/vdsbdD0lBV2VTR2ATPC92EnlKVyoYhklriNkg3ag6CEeaPd3H0V3i6ehA6HLdeqw4MkkCPO7qjc5ieOM9X2EpcQet7aNFfosbGDIBzziXADzkA",
+    "device_no": "test101",
+    "product_name": "test101",
     "optical_side_id": 18,
     "width": 2448,
     "height": 2048,
     "encoded_image_path": "bash2/images/",
-    "image_header": "-JHOCT001-01-02-03-04-",
+    "image_header": "-test101-01-02-03-04-",
     "model_version": "1",
     "request_type": "normal",
     "DetectionResult": [

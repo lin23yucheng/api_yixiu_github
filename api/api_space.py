@@ -72,7 +72,6 @@ class ApiSpace:
         header = {"content-type": "application/json", "Authorization": token}
 
         rep = requests.post(url=url, json=data, headers=header)
-        print(rep.json())
         return rep
 
     # 添加机器
@@ -82,7 +81,6 @@ class ApiSpace:
         header = {"content-type": "application/json", "Authorization": token}
 
         rep = requests.post(url=url, json=data, headers=header)
-        print(rep.json())
         return rep
 
     # 机台token下载
@@ -215,9 +213,79 @@ class ApiSpace:
         header = {"content-type": "application/json", "Authorization": token}
 
         rep = requests.post(url=url, json=data, headers=header)
-        print(rep.json())
         return rep
 
+    # 光源类型新增
+    def add_light_source_type(self):
+        url = f"{env}/miai/brainstorm/opticalsourcetype/add"
+        data = {"opticalSourceTypeName": "接口自动化-光源类型", "opticalSourceTypeId": "111",
+                "opticalSourceTypeRemark": "111"}
+        header = {"content-type": "application/json", "Authorization": token}
+
+        rep = requests.post(url=url, json=data, headers=header)
+        return rep
+
+    # 光源配方新增
+    def add_light_source_formula(self):
+        url = f"{env}/miai/brainstorm/opticalformula/add"
+        data = {"formulaName": "接口自动化-光源配方", "opticalFormulaId": "222", "formulaRemark": "222",
+                "opticalSourceTypeList": [{"opticalSourceTypeId": "111"}]}
+        header = {"content-type": "application/json", "Authorization": token}
+
+        rep = requests.post(url=url, json=data, headers=header)
+        return rep
+
+    # 光学方案新增
+    def add_optical_scheme(self):
+        url = f"{env}/miai/brainstorm/opticalscheme/add"
+        data = {"schemeName": "接口自动化-光学方案", "opticalSchemeId": "333", "opticalFormulaId": "222",
+                "recommendExposure": "", "recommendGain": "", "recommendGamma": "", "opticalSourceBrightness": "",
+                "remark": ""}
+        header = {"content-type": "application/json", "Authorization": token}
+
+        rep = requests.post(url=url, json=data, headers=header)
+        return rep
+
+    # 光学方案查询
+    def optical_scheme_query(self):
+        url = f"{env}/miai/brainstorm/opticalscheme/all"
+        header = {"content-type": "application/json", "Authorization": token}
+
+        rep = requests.post(url=url, json=None, headers=header)
+        return rep
+
+    # 标签库新增
+    def add_tag_library(self, labelCnName, labelName, dictionaryOptionId):
+        url = f"{env}/miai/brainstorm/labelDefinition/add"
+        data = {"labelType": 0, "labelCnName": labelCnName, "labelName": labelName, "labelRemarks": "",
+                "labelSimilarName": "", "defectType": 1, "labelEnName": "", "sampleImages": "",
+                "labelDictOptionList": [{"dictionaryId": 5, "dictionaryOptionId": dictionaryOptionId}],
+                "dictionaryId5": [dictionaryOptionId], "labelDefinitionId": None}
+
+        header = {"content-type": "application/json", "Authorization": token}
+
+        rep = requests.post(url=url, json=data, headers=header)
+        return rep
+
+    # 标签库查询
+    def tag_library_query(self,label_name):
+        url = f"{env}/miai/brainstorm/labelDefinition/page"
+        data = {
+            "data": {"searchText": label_name, "materialGroupId": "", "productMaterialId": "", "productionProcessId": "",
+                     "surfaceTreatmentId": "", "labelType": 0}, "page": {"pageIndex": 1, "pageSize": 10}}
+
+        header = {"content-type": "application/json", "Authorization": token}
+
+        rep = requests.post(url=url, json=data, headers=header)
+        return rep
+
+    # 标签库发布
+    def tag_library_publish(self, labelDefinitionId):
+        url = f"{env}/miai/brainstorm/labelDefinition/publish/{labelDefinitionId}"
+        header = {"content-type": "application/json", "Authorization": token}
+
+        rep = requests.post(url=url, json=None, headers=header)
+        return rep
 
 if __name__ == '__main__':
     api = ApiSpace()
