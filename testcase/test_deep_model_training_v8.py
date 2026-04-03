@@ -802,7 +802,7 @@ class TestDeepModelTraining:
                 # 提取第一条记录的id和imgName
                 over_samples_list = response_data.get('data', {}).get('list', [])
                 if not over_samples_list:
-                    pytest.fail("未找到过检样本数据")
+                    pytest.fail("未找到错检样本数据")
 
                 first_sample = over_samples_list[0]
                 sample_id = first_sample.get('id')

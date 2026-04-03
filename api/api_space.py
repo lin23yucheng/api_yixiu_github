@@ -45,7 +45,7 @@ class ApiSpace:
             print("请求失败：", rep_json.get("msg"))
             return None
 
-    # 产品查询
+    # 查询产品获取productInfoId
     def product_query(self):
         url = env + "/miai/brainstorm/productinfo/page"
         data = {"data": {"spaceManageId": manageid}, "page": {"pageIndex": 1, "pageSize": 100}}
@@ -64,6 +64,15 @@ class ApiSpace:
         else:
             print("请求失败：", rep_json.get("msg"))
             return None
+
+    # 查询产品列表页
+    def query_product_list(self):
+        url = env + "/miai/brainstorm/productinfo/page"
+        data = {"data": {"spaceManageId": manageid}, "page": {"pageIndex": 1, "pageSize": 100}}
+        header = {"content-type": "application/json", "Authorization": token, "Miaispacemanageid": manageid}
+
+        rep = requests.post(url=url, json=data, headers=header)
+        return rep
 
     # 机台查询
     def machine_query(self):
@@ -268,10 +277,11 @@ class ApiSpace:
         return rep
 
     # 标签库查询
-    def tag_library_query(self,label_name):
+    def tag_library_query(self, label_name):
         url = f"{env}/miai/brainstorm/labelDefinition/page"
         data = {
-            "data": {"searchText": label_name, "materialGroupId": "", "productMaterialId": "", "productionProcessId": "",
+            "data": {"searchText": label_name, "materialGroupId": "", "productMaterialId": "",
+                     "productionProcessId": "",
                      "surfaceTreatmentId": "", "labelType": 0}, "page": {"pageIndex": 1, "pageSize": 10}}
 
         header = {"content-type": "application/json", "Authorization": token}
@@ -286,6 +296,7 @@ class ApiSpace:
 
         rep = requests.post(url=url, json=None, headers=header)
         return rep
+
 
 if __name__ == '__main__':
     api = ApiSpace()

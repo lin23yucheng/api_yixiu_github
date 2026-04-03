@@ -1,6 +1,7 @@
 """
 2d标注相关接口
 """
+import os
 import time
 from api import api_login, api_space
 from common.Request_Response import ApiClient
@@ -168,4 +169,36 @@ class Api2DLabel:
         payload = None
 
         response = self.client.post_with_retry(url, json=payload)
+        return response
+
+    # 上传数据集
+    def upload_dataset(self, name, sample_type, dataset_type, file_path):
+        """
+        上传数据集zip文件
+        :param name: 数据集名称，如: api_158_ng
+        :param sample_source: 样本来源，1=BASH样本
+        :param dataset_id: 数据集ID
+        :param sample_type: 样本类型，如: ng
+        :param dataset_type: 数据集类型，0=训练集，1=测试集
+        :param file_path: zip文件路径，如: testdata/训练集ng.zip
+        :return: response
+        """
+        url = f"{env}/miai/brainstorm/synthetic/upload/zip"
+
+        # 构建multipart/form-data参数
+        data = {
+            "name": name,
+            "sampleSource": 1,
+            "datasetId": "",
+            "sampleType": sample_type,
+            "datasetType": dataset_type
+        }
+
+        # 打开文件并构建files参数
+        with open(file_path, 'rb') as f:
+            files = {
+                "file": (os.path.basename(file_path), f, "application/zip")
+            }
+            response = self.client.post_with_retry(url, data=data, files=files)
+
         return response
