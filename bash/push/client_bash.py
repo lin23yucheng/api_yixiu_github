@@ -93,7 +93,7 @@ class ResourceLoader:
 
     @classmethod
     def get_dynamic_params(cls):
-        """动态获取参数：从accessToken.txt读取token，从配置文件读取miai-product-code"""
+        """动态获取参数：从accessToken.txt读取token，从配置文件读取miai-product-code和device_no"""
         # 获取项目根目录
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -107,9 +107,10 @@ class ResourceLoader:
         else:
             log(f"Token文件不存在: {token_path}", LogType.WARNING)
 
-        # 2. 读取配置文件获取miai-product-code
+        # 2. 读取配置文件获取miai-product-code和device_no
         config_path = os.path.join(project_root, 'config', 'env_config.ini')
         miai_product_code = ""
+        device_no = ""
         if os.path.exists(config_path):
             config = configparser.ConfigParser()
             config.read(config_path)
@@ -119,6 +120,11 @@ class ResourceLoader:
                     log(f"成功读取miai-product-code: {miai_product_code}", LogType.INFO)
                 except configparser.NoOptionError:
                     log(f"配置文件中缺少miai-product-code字段", LogType.WARNING)
+                try:
+                    device_no = config.get('Inspection', 'device_no')
+                    log(f"成功读取device_no: {device_no}", LogType.INFO)
+                except configparser.NoOptionError:
+                    log(f"配置文件中缺少device_no字段", LogType.WARNING)
             else:
                 log(f"配置文件中缺少Inspection节", LogType.WARNING)
         else:
@@ -127,18 +133,20 @@ class ResourceLoader:
         # 3. 获取原始参数并更新
         params = cls.get_params()
         params["access_token"] = access_token
-        params["device_no"] = miai_product_code
+        params["device_no"] = device_no
         params["product_name"] = miai_product_code
 
         # 记录更新后的参数
-        log(f"动态参数更新: access_token={access_token[:10]}..., device_no={miai_product_code}, product_name={miai_product_code}",
-            LogType.INFO)
+        log(
+            f"动态参数更新: access_token={access_token[:10]}..., device_no={device_no}, product_name={miai_product_code}",
+            LogType.INFO
+        )
 
         return params
 
     @classmethod
     def update_params_json(cls):
-        """更新params_data.json文件：从accessToken.txt读取token，从配置文件读取miai-product-code"""
+        """更新params_data.json文件：从accessToken.txt读取token，从配置文件读取miai-product-code和device_no"""
         # 获取项目根目录
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -152,9 +160,10 @@ class ResourceLoader:
         else:
             log(f"Token文件不存在: {token_path}", LogType.WARNING)
 
-        # 2. 读取配置文件获取miai-product-code
+        # 2. 读取配置文件获取miai-product-code和device_no
         config_path = os.path.join(project_root, 'config', 'env_config.ini')
         miai_product_code = ""
+        device_no = ""
         if os.path.exists(config_path):
             config = configparser.ConfigParser()
             config.read(config_path)
@@ -164,6 +173,11 @@ class ResourceLoader:
                     log(f"成功读取miai-product-code: {miai_product_code}", LogType.INFO)
                 except configparser.NoOptionError:
                     log(f"配置文件中缺少miai-product-code字段", LogType.WARNING)
+                try:
+                    device_no = config.get('Inspection', 'device_no')
+                    log(f"成功读取device_no: {device_no}", LogType.INFO)
+                except configparser.NoOptionError:
+                    log(f"配置文件中缺少device_no字段", LogType.WARNING)
             else:
                 log(f"配置文件中缺少Inspection节", LogType.WARNING)
         else:
@@ -181,7 +195,7 @@ class ResourceLoader:
 
         # 5. 更新关键字段
         params["access_token"] = access_token
-        params["device_no"] = miai_product_code
+        params["device_no"] = device_no
         params["product_name"] = miai_product_code
 
         # 修改 image_header 生成逻辑

@@ -104,10 +104,10 @@ class TestController:
         with allure.step("步骤6：上传测试集ng数据集"):
             # 上传测试集ng数据集
             upload_response = self.api_2d_label.upload_dataset(
-                name="api_95_ng",
+                name="api_20_ng",
                 sample_type="ng",
                 dataset_type=1,
-                file_path="testdata/dataset/测试集ng.zip"
+                file_path="testdata/dataset/测试集ng1.zip"
             )
 
             assertions.assert_code(upload_response.status_code, 200)
@@ -180,7 +180,7 @@ class TestController:
                 print(f"✅ 当前配置产品下找到符合条件的ng数据集")
                 return True
 
-        print(f"❌ 当前配置产品下未找到符合条件的ng数据集")
+        print(f"❌ 当前配置产品下未找到符合条件的ng数据集，开始数据集上传")
         return False
 
     def _monitor_upload_status(self, dataset_name):

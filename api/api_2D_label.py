@@ -180,7 +180,7 @@ class Api2DLabel:
         :param dataset_id: 数据集ID
         :param sample_type: 样本类型，如: ng
         :param dataset_type: 数据集类型，0=训练集，1=测试集
-        :param file_path: zip文件路径，如: testdata/训练集ng.zip
+        :param file_path: zip文件路径
         :return: response
         """
         url = f"{env}/miai/brainstorm/synthetic/upload/zip"

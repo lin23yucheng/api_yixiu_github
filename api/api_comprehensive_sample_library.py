@@ -67,11 +67,11 @@ class ApiComprehensiveSampleLibrary:
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
         config.read(config_path, encoding='utf-8')
 
-        classify_types = eval(config.get('class_original_ids', 'classify_type'))
+        classify_types = eval(config.get('class_ids', 'classify_type'))
 
         # 验证列表长度，如果不足则报错
         if len(classify_types) < 2:
-            raise ValueError("配置文件[class_original_ids]下的classify_type列表至少需要包含两个元素")
+            raise ValueError("配置文件[class_ids]下的classify_type列表至少需要包含两个元素")
 
         # 构造映射字典（每个标签映射到自己）
         type_mapping_dict = {t: t for t in classify_types}

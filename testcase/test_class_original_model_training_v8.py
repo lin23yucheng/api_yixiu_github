@@ -49,8 +49,9 @@ class TestClassOriginalModelTraining:
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
         config = configparser.ConfigParser()
         config.read(config_path)
-        cls.classifyType = ast.literal_eval(config.get('class_original_ids', 'classify_type'))
-        cls.machine_name = config.get('class_original_ids', 'machine_name')
+        cls.classifyType = ast.literal_eval(config.get('class_ids', 'classify_type'))
+        cls.photoId = ast.literal_eval(config.get('class_ids', 'photo_id'))
+        cls.machine_name = config.get('class_ids', 'machine_name')
 
     def _get_model_manage_id(self, model_train_id=None, model_name=None):
         """通用方法：根据modelTrainId或模型名称获取modelManageId"""
@@ -88,7 +89,7 @@ class TestClassOriginalModelTraining:
             sleep(2)
             response = self.api_comprehensive.create_class_training_tasks(
                 defectName=[],
-                photoId=[],
+                photoId=self.photoId,
                 cut=224,
                 taskName=self.task_name,
                 classifyType=self.classifyType,
