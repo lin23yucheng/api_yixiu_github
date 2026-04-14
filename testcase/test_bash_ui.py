@@ -22,8 +22,8 @@ class TestBashUI:
         config = configparser.ConfigParser()
         config.read(config_path)
 
-        # 从浏览器池获取实例
-        cls.driver = get_browser()
+        # 从浏览器池获取实例 - 启用无头模式
+        cls.driver = get_browser(headless=True)
 
         # 获取账号密码
         cls.username = config.get('bash', 'myself_account')
@@ -208,7 +208,7 @@ class TestBashUI:
     @classmethod
     def teardown_class(cls):
         # 仅在浏览器实例存在时执行清理
-        if cls.driver and cls.driver.service.is_connectable():
+        if cls.driver and hasattr(cls.driver, 'service') and cls.driver.service.is_connectable():
             try:
                 # 清除cookies和本地存储
                 cls.driver.delete_all_cookies()

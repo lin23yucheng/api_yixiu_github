@@ -14,19 +14,23 @@ class BrowserPool:
     _thread_local = local()  # 线程局部存储
 
     @classmethod
-    def driver(cls):
+    def driver(cls, headless=False):
         """获取当前线程的浏览器实例（线程安全）"""
         if not hasattr(cls._thread_local, 'driver'):
-            cls._thread_local.driver = cls._create_driver()
+            cls._thread_local.driver = cls._create_driver(headless=headless)
         return cls._thread_local.driver
 
     @classmethod
-    def _create_driver(cls):
+    def _create_driver(cls, headless=False):
         """优化后的浏览器创建方法"""
         print(f"线程 {threading.get_ident()} 开始创建浏览器实例")
 
         # 添加加速参数
         chrome_options = Options()
+
+        # 如果需要无头模式，添加相应参数
+        if headless:
+            chrome_options.add_argument("--headless=new")  # 使用新的无头模式
 
         # 基本性能优化参数
         chrome_options.add_argument("--disable-extensions")
@@ -81,12 +85,15 @@ class BrowserPool:
             # 移除自动化标记
             driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
-            # 窗口最大化
-            try:
-                driver.maximize_window()
-                print(f"线程 {threading.get_ident()} 浏览器窗口已最大化")
-            except Exception as e:
-                print(f"线程 {threading.get_ident()} 窗口最大化失败: {str(e)}")
+            # 窗口最大化 - 只在非无头模式下执行
+            if not headless:
+                try:
+                    driver.maximize_window()
+                    print(f"线程 {threading.get_ident()} 浏览器窗口已最大化")
+                except Exception as e:
+                    print(f"线程 {threading.get_ident()} 窗口最大化失败: {str(e)}")
+            else:
+                print(f"线程 {threading.get_ident()} 无头模式，跳过窗口最大化")
 
             print(f"线程 {threading.get_ident()} 浏览器实例创建成功")
             return driver
@@ -127,9 +134,9 @@ class BrowserPool:
                     del cls._thread_local.driver
 
 
-def get_browser():
+def get_browser(headless=False):
     """获取当前线程的浏览器实例"""
-    return BrowserPool.driver()
+    return BrowserPool.driver(headless=headless)
 
 
 def release_browser():

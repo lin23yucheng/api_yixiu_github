@@ -1,11 +1,18 @@
 import pytest
 import time
+# 屏蔽 urllib3 的不安全 HTTPS 警告
+import urllib3
 
-from common.Log import MyLog,AllureReporter
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+from common.Log import MyLog, AllureReporter
+
+
 def format_time(seconds):
     minutes = int(seconds // 60)
     remaining_seconds = int(seconds % 60)
     return f"{minutes}分{remaining_seconds}秒"
+
 
 @pytest.hookimpl(trylast=True)
 def pytest_sessionfinish(session):
@@ -15,6 +22,7 @@ def pytest_sessionfinish(session):
         MyLog.info("Allure 上下文已安全关闭")
     except Exception as e:
         MyLog.error(f"关闭Allure上下文失败: {e}")
+
 
 @pytest.fixture(scope="session", autouse=True)
 def start_running():
