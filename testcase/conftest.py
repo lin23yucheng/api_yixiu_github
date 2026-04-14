@@ -1,9 +1,5 @@
 import pytest
 import time
-# 屏蔽 urllib3 的不安全 HTTPS 警告
-import urllib3
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from common.Log import MyLog, AllureReporter
 
