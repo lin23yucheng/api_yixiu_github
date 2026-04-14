@@ -87,11 +87,11 @@ class TestGetAccessToken:
 
             machine_list = response_data.get("data", {}).get("list", [])
             if not machine_list:
-                pytest.fail("机器管理列表为空，无法获取machineNo")
+                pytest.fail("机器管理列表为空，无法获取sn")
 
-            machine_no = machine_list[-1].get("machineNo")
+            machine_no = machine_list[-1].get("sn")
             if not machine_no:
-                pytest.fail("最后一条机器数据machineNo为空")
+                pytest.fail("最后一条机器数据sn为空")
 
             config_path = self.write_device_no_to_config(machine_no)
             allure.attach(str(machine_no), name="写入device_no", attachment_type=allure.attachment_type.TEXT)
