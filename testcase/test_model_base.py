@@ -7,6 +7,8 @@ import time
 import pytest
 import allure
 import requests
+import ast
+import configparser
 from common import Assert
 from common.Request_Response import ApiClient
 from api.api_login import ApiLogin
@@ -48,6 +50,11 @@ class TestModelBase:
         cls.trainTaskId = None
         cls.class_cut_trainTaskId = None
         cls.class_original_trainTaskId = None
+        # 读取配置文件
+        config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
+        config = configparser.ConfigParser()
+        config.read(config_path)
+        cls.photoId_ok = ast.literal_eval(config.get('persistent_ids', 'photo_id_ok'))
 
     def get_testdata_path(self, filename):
         """获取测试数据文件路径"""
@@ -229,6 +236,7 @@ class TestModelBase:
                         pytest.fail(f"{step_name}遇到未知状态: {current_status}")
 
     @allure.story("模型库测试流程")
+    @allure.title("模型组合测试全流程")
     def test_deployment(self):
 
         with allure.step("步骤1：模型组合"):
@@ -285,7 +293,10 @@ class TestModelBase:
             )
 
         with allure.step("步骤4：组合模型验证"):
-            response = self.api_base.model_verify(self.__class__.combination_modelManageId)
+            response = self.api_base.model_verify(
+                self.__class__.combination_modelManageId,
+                self.photoId_ok
+            )
 
             # 响应断言
             assertions.assert_code(response.status_code, 200)

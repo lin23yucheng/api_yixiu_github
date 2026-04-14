@@ -37,10 +37,10 @@ class ApiModelBase:
         return response
 
     # 模型验证
-    def model_verify(self, modelManageId):
+    def model_verify(self, modelManageId, photo_id):
         url = f"{env}/miai/brainstorm/newmodelmanage/test/global/sample"
         payload = {"modelManageIdList": [modelManageId], "remark": "", "endTime": "", "startTime": "",
-                   "photoId": ["1"], "sampleType": ["ok"], "productId": [self.product_info_id], "defectName": [],
+                   "photoId": photo_id, "sampleType": ["ok"], "productId": [self.product_info_id], "defectName": [],
                    "classifyType": [], "keepLabels": []}
 
         response = self.client.post_with_retry(url, json=payload)
