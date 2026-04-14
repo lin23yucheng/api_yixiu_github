@@ -1,3 +1,4 @@
+# ... existing code ...
 """
 数据训练任务接口自动化流程
 """
@@ -39,7 +40,8 @@ class TestDataTrainingTask:
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
         config = configparser.ConfigParser()
         config.read(config_path)
-        cls.defectName = ast.literal_eval(config.get('data_task', 'defect_name'))
+        cls.classify_type = ast.literal_eval(config.get('class_ids', 'classify_type'))
+        cls.photo_id = ast.literal_eval(config.get('class_ids', 'photo_id'))
 
     def _monitor_data_task_progress(self):
         """监控数据训练任务采集状态并获取任务ID"""
@@ -207,10 +209,76 @@ class TestDataTrainingTask:
         total_start = time.time()
         step_durations = {}  # 存储每个步骤的耗时
 
-        # 步骤1：创建数据训练任务
-        with allure.step("步骤1：创建数据训练任务") as step1:
+        with allure.step("步骤1：获取产品下的深度模型") as step1:
             step_start = time.time()
-            response = self.api_comprehensive.create_data_training_tasks(self.defectName, self.task_name)
+
+            # 调用查询产品深度模型接口
+            response = self.api_comprehensive.query_product_deep_model()
+
+            # 验证响应
+            assertions.assert_code(response.status_code, 200)
+            response_data = response.json()
+            assertions.assert_in_text(response_data['msg'], '成功')
+
+            # 判断data下是否有数据
+            deep_models = response_data.get('data', [])
+            if not deep_models:
+                pytest.skip("产品下无可用深度模型，无法创建数据训练任务")
+
+            # 提取最后一条数据的字段
+            last_model = deep_models[-1]
+            self.check_scope = last_model.get('checkScope')
+            self.class_names_list = last_model.get('classNamesList')
+            self.deep_model_name = last_model.get('deepModelName')
+            self.deep_model_source = last_model.get('deepModelSource')
+            self.deep_model_version = last_model.get('deepModelVersion')
+            self.inference_label = last_model.get('inferenceLabel')
+            self.model_manage_id = last_model.get('modelManageId')
+            self.triton_path = last_model.get('tritonPath')
+
+            # 记录提取的字段信息
+            extracted_info = f"""
+            提取的深度模型字段信息:
+            - checkScope: {self.check_scope}
+            - classNamesList: {self.class_names_list}
+            - deepModelName: {self.deep_model_name}
+            - deepModelSource: {self.deep_model_source}
+            - deepModelVersion: {self.deep_model_version}
+            - inferenceLabel: {self.inference_label}
+            - modelManageId: {self.model_manage_id}
+            - tritonPath: {self.triton_path}
+            """
+
+            allure.attach(
+                extracted_info,
+                name="提取的深度模型字段信息",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            # 记录步骤耗时
+            step_duration = time.time() - step_start
+            step_durations["步骤1"] = step_duration
+
+            # 使用 allure.dynamic.title 更新步骤名称
+            allure.dynamic.title(f"步骤1：获取产品下的深度模型 (耗时: {step_duration:.2f}秒)")
+
+        with allure.step("步骤2：创建数据训练任务") as step2:
+            step_start = time.time()
+
+            # 使用提取的字段值创建数据训练任务
+            response = self.api_comprehensive.create_data_training_tasks(
+                self.photo_id,
+                self.classify_type,
+                self.task_name,
+                self.model_manage_id,
+                self.deep_model_name,
+                self.deep_model_version,
+                self.triton_path,
+                self.deep_model_source,
+                self.class_names_list,
+                self.check_scope,
+                self.inference_label
+            )
 
             # 验证响应
             assertions.assert_code(response.status_code, 200)
@@ -226,44 +294,25 @@ class TestDataTrainingTask:
 
             # 记录步骤耗时
             step_duration = time.time() - step_start
-            step_durations["步骤1"] = step_duration
-
-            # 使用 allure.dynamic.title 更新步骤名称
-            allure.dynamic.title(f"步骤1：创建数据训练任务 (耗时: {step_duration:.2f}秒)")
-
-        # 步骤2：监控数据训练任务采集状态
-        with allure.step("步骤2：监控数据训练任务采集状态") as step2:
-            step_start = time.time()
-            self._monitor_data_task_progress()
-
-            # 记录步骤耗时
-            step_duration = time.time() - step_start
             step_durations["步骤2"] = step_duration
 
             # 使用 allure.dynamic.title 更新步骤名称
-            allure.dynamic.title(f"步骤2：监控数据训练任务采集状态 (耗时: {step_duration:.2f}秒)")
+            allure.dynamic.title(f"步骤2：创建数据训练任务 (耗时: {step_duration:.2f}秒)")
 
-        # 步骤3：生成下载数据包
-        with allure.step("步骤3：生成下载数据包") as step3:
+        with allure.step("步骤3：监控数据训练任务采集状态") as step3:
             step_start = time.time()
-            response = self.api_data.create_data_zip(self.dataAlgorithmTrainTaskId)
-
-            # 验证响应
-            assertions.assert_code(response.status_code, 200)
-            response_data = response.json()
-            assertions.assert_in_text(response_data['msg'], '成功')
+            self._monitor_data_task_progress()
 
             # 记录步骤耗时
             step_duration = time.time() - step_start
             step_durations["步骤3"] = step_duration
 
             # 使用 allure.dynamic.title 更新步骤名称
-            allure.dynamic.title(f"步骤3：生成下载数据包 (耗时: {step_duration:.2f}秒)")
+            allure.dynamic.title(f"步骤3：监控数据训练任务采集状态 (耗时: {step_duration:.2f}秒)")
 
-        # 步骤4：上传数据算法包
-        with allure.step("步骤4：上传数据算法包") as step4:
+        with allure.step("步骤4：生成下载数据包") as step4:
             step_start = time.time()
-            response = self.api_data.upload_data_algorithm(self.dataAlgorithmTrainTaskId)
+            response = self.api_data.create_data_zip(self.dataAlgorithmTrainTaskId)
 
             # 验证响应
             assertions.assert_code(response.status_code, 200)
@@ -275,10 +324,25 @@ class TestDataTrainingTask:
             step_durations["步骤4"] = step_duration
 
             # 使用 allure.dynamic.title 更新步骤名称
-            allure.dynamic.title(f"步骤4：上传数据算法包 (耗时: {step_duration:.2f}秒)")
+            allure.dynamic.title(f"步骤4：生成下载数据包 (耗时: {step_duration:.2f}秒)")
 
-        # 步骤5：删除数据训练任务
-        with allure.step("步骤5：删除数据训练任务") as step5:
+        with allure.step("步骤5：上传数据算法包") as step5:
+            step_start = time.time()
+            response = self.api_data.upload_data_algorithm(self.dataAlgorithmTrainTaskId)
+
+            # 验证响应
+            assertions.assert_code(response.status_code, 200)
+            response_data = response.json()
+            assertions.assert_in_text(response_data['msg'], '成功')
+
+            # 记录步骤耗时
+            step_duration = time.time() - step_start
+            step_durations["步骤5"] = step_duration
+
+            # 使用 allure.dynamic.title 更新步骤名称
+            allure.dynamic.title(f"步骤5：上传数据算法包 (耗时: {step_duration:.2f}秒)")
+
+        with allure.step("步骤6：删除数据训练任务") as step6:
             step_start = time.time()
 
             with allure.step("子步骤1：数据库逻辑删除上传的数据算法包") as sub_step1:
@@ -326,10 +390,10 @@ class TestDataTrainingTask:
 
             # 记录步骤耗时
             step_duration = time.time() - step_start
-            step_durations["步骤5"] = step_duration
+            step_durations["步骤6"] = step_duration
 
             # 使用 allure.dynamic.title 更新步骤名称
-            allure.dynamic.title(f"步骤5：删除数据训练任务 (耗时: {step_duration:.2f}秒)")
+            allure.dynamic.title(f"步骤6：删除数据训练任务 (耗时: {step_duration:.2f}秒)")
 
         # 测试结束处理
         total_duration = time.time() - total_start

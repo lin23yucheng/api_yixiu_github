@@ -123,34 +123,36 @@ class ApiComprehensiveSampleLibrary:
         response = self.client.post_with_retry(url, json=payload)
         return response
 
+    # 查询产品下的深度模型
+    def query_product_deep_model(self):
+        url = f"{env}/miai/brainstorm/newmodelmanage/getModelManageSelectList/{self.product_info_id}"
+
+        response = self.client.get_with_retry(url)
+        return response
+
     # 综合样本库-创建数据训练任务
-    def create_data_training_tasks(self, defectName, taskName):
+    def create_data_training_tasks(self, photo_id, classify_type, taskName, deepModel, deepModelName, deepModelVersion,
+                                   tritonPath, deepModelSource, classNamesList, checkScope, inferenceLabel):
         url = f"{env}/miai/brainstorm/datalg/dataalgorithmtraintask/create"
-        payload = {"imgName": "", "endTime": None, "startTime": None, "globalDatasetType": 0, "visualGrade": [],
-                   "bashSampleType": [],
-                   "productId": [self.product_info_id], "defectName": defectName, "photoId": [],
-                   "classifyType": [], "imageDefinition": [], "sampleType": [], "dataAlgorithmSampleType": [],
-                   "deepModelSampleType": [], "classifyTypeOther": [None, "mozha", "未知", "yakedian"],
-                   "defectNameOther": ["mozha", "yakedian"], "selectIds": [], "notSelectIds": [],
-                   "taskName": taskName, "deepModel": "1878990922328797185", "remark": "接口自动化",
-                   "modelManageId": "1878990922328797185", "deepModelName": "仿真5个分割模型组合",
-                   "deepModelVersion": 23,
-                   "combineType": "DetS V2 实例分割+DetS V2 实例分割+DetS V2 实例分割+DetS V2 实例分割+DetS V2 实例分割",
-                   "isCombine": True,
-                   "tritonPath": "/miai_mtl_repository/1873905652887785473/triton/1878990922328797185",
-                   "deepModelSource": "4", "isAllinPhoto": False,
-                   "classNamesList": "[\"shang\", \"fabaimian\", \"neilie\", \"mozha\", \"fabai\", \"tuomo\", \"yimo\", \"liangxian\", \"moqian3\", \"moqian\", \"liebian\", \"dahen\", \"pobian\", \"seban\", \"shanghen\"]",
-                   "checkScope": "JHOCT001:1,2,3,4,5,8,10",
-                   "inferenceLabel": "伤,发白面,内裂,磨渣,发白,脱模,溢墨,亮线,墨欠3,墨欠,裂边,打痕,破边,色斑,伤痕",
-                   "displayName": "仿真5个分割模型组合 V23 组合"}
+
+        payload = {"endTime": None, "startTime": None, "imgName": "", "globalDatasetType": 0, "visualGrade": [],
+                   "bashSampleType": [], "productId": [self.product_info_id], "defectName": [], "photoId": photo_id,
+                   "classifyType": classify_type, "imageDefinition": [], "sampleType": [],
+                   "dataAlgorithmSampleType": [], "deepModelSampleType": [], "classifyTypeOther": classify_type,
+                   "defectNameOther": classify_type, "selectIds": [], "notSelectIds": [],
+                   "taskName": taskName, "deepModel": deepModel, "remark": "接口自动化",
+                   "modelManageId": deepModel, "deepModelName": deepModelName,
+                   "deepModelVersion": deepModelVersion, "combineType": None, "isCombine": False,
+                   "tritonPath": tritonPath,
+                   "deepModelSource": deepModelSource, "isAllinPhoto": False,
+                   "classNamesList": classNamesList,
+                   "checkScope": checkScope,
+                   "inferenceLabel": inferenceLabel,
+                   "displayName": f"{deepModelName} V{deepModelVersion} "}
 
         response = self.client.post_with_retry(url, json=payload)
         return response
 
 
 if __name__ == '__main__':
-    api = ApiComprehensiveSampleLibrary(global_client)
-    # api.comprehensive_sample_query(None, ["shang"], ["1", "2", "3"])
-    api.create_deep_training_tasks(["dahenxian"], [], 1024, "测试集01", [], "detection", "目标检测/分割", 1, True, "")
-    # api.append_deep_training_tasks(["yimo"], ["1", "2"], None)
-    # api.append_deep_training_tasks2(None, ["3"], ["ok"], None, 1)
+    pass
