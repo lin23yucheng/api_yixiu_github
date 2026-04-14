@@ -224,6 +224,7 @@ class TestDataTrainingTask:
             # 判断data下是否有数据
             deep_models = response_data.get('data', [])
             if not deep_models:
+                print(f"\033[93m产品下无可用深度模型，无法创建数据训练任务\033[0m")
                 pytest.skip("产品下无可用深度模型，无法创建数据训练任务")
 
             # 提取最后一条数据的字段
