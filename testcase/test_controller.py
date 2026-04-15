@@ -31,7 +31,7 @@ class TestController:
         cls.global_client = ApiClient(base_headers=cls.base_headers)
         cls.api_2d_label = api_2D_label.Api2DLabel(cls.global_client)
 
-    @allure.feature("场景：模型训练前置数据校验与准备")
+    @allure.feature("场景：综合前置数据校验与准备")
     def test_prepare_training_data(self):
         """准备模型训练所需数据集"""
 
@@ -107,7 +107,7 @@ class TestController:
                 name="api_20_ng",
                 sample_type="ng",
                 dataset_type=1,
-                file_path="testdata/dataset/测试集ng1.zip"
+                file_path="testdata/dataset/测试集ng.zip"
             )
 
             assertions.assert_code(upload_response.status_code, 200)
