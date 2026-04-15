@@ -49,10 +49,17 @@ class TestClassCutModelTraining:
         # 读取配置文件
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
         config = configparser.ConfigParser()
-        config.read(config_path)
-        cls.classifyType = ast.literal_eval(config.get('class_ids', 'classify_type'))
-        cls.photoId = ast.literal_eval(config.get('class_ids', 'photo_id'))
-        cls.machine_name = config.get('class_ids', 'machine_name')
+        config.read(config_path, encoding='utf-8')
+
+        # 获取当前环境并从对应环境节读取
+        env = config.get("environment", "execution_env", fallback="").strip().lower()
+        if env not in {"fat", "prod"}:
+            raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+        env_section = f"{env}-yixiu"
+        cls.classifyType = ast.literal_eval(config.get(env_section, 'classify_type'))
+        cls.photoId = ast.literal_eval(config.get(env_section, 'photo_id'))
+        cls.machine_name = config.get(env_section, 'machine_name')
 
     def _get_model_manage_id(self, model_train_id=None, model_name=None):
         """通用方法：根据modelTrainId或模型名称获取modelManageId"""

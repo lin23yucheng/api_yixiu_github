@@ -18,11 +18,20 @@ def get_miai_product_code():
 
     try:
         config = configparser.ConfigParser()
-        config.read(config_path)
-        if 'Inspection' in config and config.has_option('Inspection', 'miai-product-code'):
-            return config.get('Inspection', 'miai-product-code')
+        config.read(config_path, encoding='utf-8')
+
+        # 获取当前环境
+        env = config.get("environment", "execution_env", fallback="").strip().lower()
+        if env not in {"fat", "prod"}:
+            print(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+            return "JHOCT001"  # 默认值
+
+        # 从对应环境节读取
+        env_section = f"{env}-yixiu"
+        if config.has_option(env_section, 'miai-product-code'):
+            return config.get(env_section, 'miai-product-code')
         else:
-            print("配置文件中缺少Inspection节或miai-product-code字段")
+            print(f"配置文件中缺少{env_section}节或miai-product-code字段")
             return "JHOCT001"  # 默认值
     except Exception as e:
         print(f"读取配置文件时出错: {e}")

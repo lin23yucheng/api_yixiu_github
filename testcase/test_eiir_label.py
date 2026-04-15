@@ -18,8 +18,15 @@ time_str = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
 config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
 config = configparser.ConfigParser()
-config.read(config_path)
-space_name = config.get('EIIR', 'space_name')
+config.read(config_path, encoding='utf-8')
+
+# 获取当前环境并从对应环境节读取
+env = config.get("environment", "execution_env", fallback="").strip().lower()
+if env not in {"fat", "prod"}:
+    raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+env_eiir_section = f"{env}-EIIR"
+space_name = config.get(env_eiir_section, 'space_name')
 
 miaispacemanageid = None
 

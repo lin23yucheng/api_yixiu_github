@@ -20,18 +20,27 @@ class TestBashUI:
         # 读取配置文件
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
         config = configparser.ConfigParser()
-        config.read(config_path)
+        config.read(config_path, encoding='utf-8')
 
         # 从浏览器池获取实例 - 启用无头模式
         cls.driver = get_browser(headless=True)
 
-        # 获取账号密码
-        cls.username = config.get('bash', 'myself_account')
-        cls.password = config.get('bash', 'myself_password')
-        cls.miaiproductcode = config.get('Inspection', 'miai-product-code')
+        # 获取当前环境
+        env = config.get("environment", "execution_env", fallback="").strip().lower()
+        if env not in {"fat", "prod"}:
+            raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+        # 从对应环境节读取配置
+        env_yixiu_section = f"{env}-yixiu"
+        env_bash_section = f"{env}-bash"
+
+        cls.username = config.get(env_bash_section, "myself_account")
+        cls.password = config.get(env_bash_section, "myself_password")
+        cls.miaiproductcode = config.get(env_yixiu_section, "miai-product-code")
 
         # 从配置文件获取UI地址
-        cls.ui_bash_fat = config.get('bash', 'ui_bash_fat')
+        ui_address_key = "ui_bash_fat" if env == "fat" else "ui_bash_prod"
+        cls.ui_bash_fat = config.get(env_bash_section, ui_address_key)
 
         # 推图线程控制
         cls.push_thread = None

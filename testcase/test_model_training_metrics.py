@@ -36,12 +36,19 @@ class TestModelTrainingMetrics:
         # 读取配置文件
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
         config = configparser.ConfigParser()
-        config.read(config_path)
-        cls.machine_name = config.get('persistent_ids', 'machine_name')
-        cls.train_task_id_v8 = config.get('old_ids', 'train_task_id_v8')
-        cls.train_task_id_v11 = config.get('old_ids', 'train_task_id_v11')
-        cls.train_task_id_v12 = config.get('old_ids', 'train_task_id_v12')
-        cls.train_task_id_mtl = config.get('old_ids', 'train_task_id_mtl')
+        config.read(config_path, encoding='utf-8')
+
+        # 获取当前环境并从对应环境节读取
+        env = config.get("environment", "execution_env", fallback="").strip().lower()
+        if env not in {"fat", "prod"}:
+            raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+        env_section = f"{env}-yixiu"
+        cls.machine_name = config.get(env_section, 'machine_name')
+        cls.train_task_id_v8 = config.get(env_section, 'train_task_id_v8')
+        cls.train_task_id_v11 = config.get(env_section, 'train_task_id_v11')
+        cls.train_task_id_v12 = config.get(env_section, 'train_task_id_v12')
+        cls.train_task_id_mtl = config.get(env_section, 'train_task_id_mtl')
 
     def _get_train_records(self, task_id):
         """获取训练记录的通用方法"""

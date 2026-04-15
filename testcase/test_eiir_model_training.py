@@ -18,13 +18,20 @@ time_str = time.strftime("%Y%m%d%H%M%S", time.localtime())
 # 读取配置文件
 config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
 config = configparser.ConfigParser()
-config.read(config_path)
-space_name = config.get('EIIR', 'space_name')
-machine_name = config.get('EIIR', 'machine_name')
+config.read(config_path, encoding='utf-8')
+
+# 获取当前环境并从对应环境节读取
+env = config.get("environment", "execution_env", fallback="").strip().lower()
+if env not in {"fat", "prod"}:
+    raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+env_eiir_section = f"{env}-EIIR"
+space_name = config.get(env_eiir_section, 'space_name')
+machine_name = config.get(env_eiir_section, 'machine_name')
 # 使用 ast.literal_eval 将字符串转换为列表
-machineId = ast.literal_eval(config.get('EIIR', 'machineId'))
-componentLabel = ast.literal_eval(config.get('EIIR', 'componentLabel'))
-append_componentLabel = ast.literal_eval(config.get('EIIR', 'append_componentLabel'))
+machineId = ast.literal_eval(config.get(env_eiir_section, 'machineId'))
+componentLabel = ast.literal_eval(config.get(env_eiir_section, 'componentLabel'))
+append_componentLabel = ast.literal_eval(config.get(env_eiir_section, 'append_componentLabel'))
 
 # 获取空间ID - 添加错误检查
 miaispacemanageid = None

@@ -21,6 +21,76 @@ class TestGetAccessToken:
         cls.machine_id = None
 
     @staticmethod
+    def _replace_ini_key_in_section(file_path, section_name, key, value):
+        with open(file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        default_newline = "\n"
+        for line in lines:
+            if line.endswith("\r\n"):
+                default_newline = "\r\n"
+                break
+            if line.endswith("\n"):
+                default_newline = "\n"
+                break
+
+        target_section = section_name.strip().lower()
+        target_key = key.strip().lower()
+
+        in_target_section = False
+        section_found = False
+        key_found = False
+        insert_index = None
+
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+
+            if stripped.startswith("[") and stripped.endswith("]"):
+                if in_target_section and insert_index is None:
+                    insert_index = i
+                current_section = stripped[1:-1].strip().lower()
+                in_target_section = current_section == target_section
+                section_found = section_found or in_target_section
+                continue
+
+            if not in_target_section:
+                continue
+
+            if not stripped or stripped.startswith(";") or stripped.startswith("#"):
+                continue
+
+            if "=" not in line:
+                continue
+
+            left, _, _ = line.partition("=")
+            if left.strip().lower() != target_key:
+                continue
+
+            line_newline = ""
+            if line.endswith("\r\n"):
+                line_newline = "\r\n"
+            elif line.endswith("\n"):
+                line_newline = "\n"
+
+            leading_ws = left[: len(left) - len(left.lstrip())]
+            lines[i] = f"{leading_ws}{left.strip()} = {value}{line_newline}"
+            key_found = True
+            break
+
+        if not section_found:
+            raise ValueError(f"配置节不存在: [{section_name}]")
+
+        if not key_found:
+            if insert_index is None:
+                insert_index = len(lines)
+                if lines and not lines[-1].endswith(("\n", "\r\n")):
+                    lines[-1] = lines[-1] + default_newline
+            lines.insert(insert_index, f"{key} = {value}{default_newline}")
+
+        with open(file_path, "w", encoding="utf-8", newline="") as f:
+            f.writelines(lines)
+
+    @staticmethod
     def write_device_no_to_config(device_no):
         config_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -29,9 +99,20 @@ class TestGetAccessToken:
         )
         config = configparser.ConfigParser()
         config.read(config_path, encoding="utf-8")
-        config.set("Inspection", "device_no", str(device_no))
-        with open(config_path, "w", encoding="utf-8") as f:
-            config.write(f)
+
+        # 获取当前环境并写入对应节的device_no
+        env = config.get("environment", "execution_env", fallback="").strip().lower()
+        if env not in {"fat", "prod"}:
+            raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+        # 写入对应环境节的device_no（仅替换目标键，不重写整个INI，保留注释和格式）
+        env_section = f"{env}-yixiu"
+        TestGetAccessToken._replace_ini_key_in_section(
+            file_path=config_path,
+            section_name=env_section,
+            key="device_no",
+            value=str(device_no),
+        )
         return config_path
 
     @allure.story("获取机台token")

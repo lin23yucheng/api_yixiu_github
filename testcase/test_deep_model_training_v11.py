@@ -48,12 +48,19 @@ class TestDeepModelTraining:
         # 读取配置文件
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
         config = configparser.ConfigParser()
-        config.read(config_path)
-        cls.defectName = ast.literal_eval(config.get('persistent_ids', 'defect_name'))
+        config.read(config_path, encoding='utf-8')
+
+        # 获取当前环境并从对应环境节读取
+        env = config.get("environment", "execution_env", fallback="").strip().lower()
+        if env not in {"fat", "prod"}:
+            raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+        env_section = f"{env}-yixiu"
+        cls.defectName = ast.literal_eval(config.get(env_section, 'defect_name'))
         # 使用 ast.literal_eval 将字符串转换为列表
-        cls.photoId_ng = ast.literal_eval(config.get('persistent_ids', 'photo_id_ng'))
-        cls.photoId_ok = ast.literal_eval(config.get('persistent_ids', 'photo_id_ok'))
-        cls.machine_name = config.get('persistent_ids', 'machine_name')
+        cls.photoId_ng = ast.literal_eval(config.get(env_section, 'photo_id_ng'))
+        cls.photoId_ok = ast.literal_eval(config.get(env_section, 'photo_id_ok'))
+        cls.machine_name = config.get(env_section, 'machine_name')
 
     # 分析状态监控方法
     def _monitor_analysis_progress(self, analysis_type, api_call):
@@ -802,7 +809,7 @@ class TestDeepModelTraining:
                 # 提取第一条记录的id和imgName
                 over_samples_list = response_data.get('data', {}).get('list', [])
                 if not over_samples_list:
-                    pytest.fail("未找到过检样本数据")
+                    pytest.fail("未找到错检样本数据")
 
                 first_sample = over_samples_list[0]
                 sample_id = first_sample.get('id')

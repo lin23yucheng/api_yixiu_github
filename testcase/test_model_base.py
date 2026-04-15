@@ -53,8 +53,16 @@ class TestModelBase:
         # 读取配置文件
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
         config = configparser.ConfigParser()
-        config.read(config_path)
-        cls.photoId_ok = ast.literal_eval(config.get('persistent_ids', 'photo_id_ok'))
+        config.read(config_path, encoding='utf-8')
+
+        # 获取当前环境
+        cls.env_name = config.get("environment", "execution_env", fallback="").strip().lower()
+        if cls.env_name not in {"fat", "prod"}:
+            raise ValueError(f"execution_env 配置错误: {cls.env_name}，仅支持 fat 或 prod")
+
+        # 从对应环境节读取photoId_ok
+        env_section = f"{cls.env_name}-yixiu"
+        cls.photoId_ok = ast.literal_eval(config.get(env_section, 'photo_id_ok'))
 
     def get_testdata_path(self, filename):
         """获取测试数据文件路径"""
@@ -240,8 +248,9 @@ class TestModelBase:
     def test_deployment(self):
 
         with allure.step("步骤1：模型组合"):
-            # 读取组合模型JSON
-            json_path = self.get_testdata_path("组合模型.json")
+            # 根据环境动态读取组合模型JSON文件
+            json_filename = f"模型组合-{self.__class__.env_name}.json"
+            json_path = self.get_testdata_path(json_filename)
             with open(json_path, "r", encoding="utf-8") as f:
                 combine_json = json.load(f)
 

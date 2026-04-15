@@ -39,9 +39,16 @@ class TestDataTrainingTask:
         # 读取配置文件
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
         config = configparser.ConfigParser()
-        config.read(config_path)
-        cls.classify_type = ast.literal_eval(config.get('class_ids', 'classify_type'))
-        cls.photo_id = ast.literal_eval(config.get('class_ids', 'photo_id'))
+        config.read(config_path, encoding='utf-8')
+
+        # 获取当前环境并从对应环境节读取
+        env = config.get("environment", "execution_env", fallback="").strip().lower()
+        if env not in {"fat", "prod"}:
+            raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+        env_section = f"{env}-yixiu"
+        cls.classify_type = ast.literal_eval(config.get(env_section, 'classify_type'))
+        cls.photo_id = ast.literal_eval(config.get(env_section, 'photo_id'))
 
     def _monitor_data_task_progress(self):
         """监控数据训练任务采集状态并获取任务ID"""
@@ -140,7 +147,13 @@ class TestDataTrainingTask:
         config_path = os.path.join(os.getcwd(), 'config', 'env_config.ini')
         config.read(config_path, encoding='utf-8')
 
-        db_config = config['PostgreSQL']
+        # 获取当前环境并从对应环境节读取数据库配置
+        env = config.get("environment", "execution_env", fallback="").strip().lower()
+        if env not in {"fat", "prod"}:
+            raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+        db_config_section = f"{env}-PostgreSQL"
+        db_config = config[db_config_section]
         host = db_config['host']
         port = int(db_config['port'])
         user = db_config['user_name']

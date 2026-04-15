@@ -13,18 +13,27 @@ from common.Request_Response import ApiClient
 assertions = Assert.Assertions()
 
 # 读取配置
+import os
 config = configparser.ConfigParser()
-config.read("./config/env_config.ini")
-section_one = "Inspection"
-section_two = "bash"
-space_name = config.get(section_one, "space_name")
-miai_product_code = config.get(section_one, "miai-product-code")
-miaispacemanageid = config.get(section_one, "miaispacemanageid")
-admin_account = config.get(section_two, "admin_account")
-myself_name = config.get(section_two, "myself_name")
+config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
+config.read(config_path, encoding='utf-8')
+
+# 获取当前环境
+env = config.get("environment", "execution_env", fallback="").strip().lower()
+if env not in {"fat", "prod"}:
+    raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+# 从对应环境节读取配置
+env_yixiu_section = f"{env}-yixiu"
+env_bash_section = f"{env}-bash"
+space_name = config.get(env_yixiu_section, "space_name")
+miai_product_code = config.get(env_yixiu_section, "miai-product-code")
+miaispacemanageid = config.get(env_yixiu_section, "miaispacemanageid")
+admin_account = config.get(env_bash_section, "admin_account")
+myself_name = config.get(env_bash_section, "myself_name")
 
 # 获取明文密码并进行MD5加密
-plain_password = config.get(section_two, "admin_password")
+plain_password = config.get(env_bash_section, "admin_password")
 admin_password = hashlib.md5(plain_password.encode()).hexdigest()  # 加密处理
 
 # 格式化时间

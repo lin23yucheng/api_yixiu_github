@@ -17,13 +17,19 @@ assertions = Assert.Assertions()
 
 # 读取配置
 config = configparser.ConfigParser()
-config.read("./config/env_config.ini")
-section_one = "Inspection"
-space_name = config.get(section_one, "space_name")
-miai_product_code = config.get(section_one, "miai-product-code")
+config.read("./config/env_config.ini", encoding="utf-8")
+
+# 获取当前环境并从对应环境节读取
+_env = config.get("environment", "execution_env", fallback="").strip().lower()
+if _env not in {"fat", "prod"}:
+    raise ValueError(f"execution_env 配置错误: {_env}，仅支持 fat 或 prod")
+
+_env_section = f"{_env}-yixiu"
+space_name = config.get(_env_section, "space_name")
+miai_product_code = config.get(_env_section, "miai-product-code")
 
 # 推图命令
-grpc_command = config.get(section_one, "grpc_command")
+grpc_command = config.get(_env_section, "grpc_command")
 
 # 初始化日志记录器
 logger = logging.getLogger(__name__)
@@ -96,23 +102,31 @@ def update_data_json():
         device_no = ""
         if config_path.exists():
             config = configparser.ConfigParser()
-            config.read(config_path)
-            if 'Inspection' in config:
+            config.read(config_path, encoding="utf-8")
+
+            # 获取当前环境并从对应环境节读取
+            env = config.get("environment", "execution_env", fallback="").strip().lower()
+            if env not in {"fat", "prod"}:
+                logger.warning(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+                return False
+
+            env_section = f"{env}-yixiu"
+            if config.has_section(env_section):
                 try:
-                    miai_product_code = config.get('Inspection', 'miai-product-code')
+                    miai_product_code = config.get(env_section, 'miai-product-code')
                     logger.info(f"成功读取miai-product-code: {miai_product_code}")
                 except configparser.NoOptionError:
                     logger.warning("配置文件中缺少miai-product-code字段")
                     return False
 
                 try:
-                    device_no = config.get('Inspection', 'device_no')
+                    device_no = config.get(env_section, 'device_no')
                     logger.info(f"成功读取device_no: {device_no}")
                 except configparser.NoOptionError:
                     logger.warning("配置文件中缺少device_no字段")
                     return False
             else:
-                logger.warning("配置文件中缺少Inspection节")
+                logger.warning(f"配置文件中缺少节: [{env_section}]")
                 return False
         else:
             logger.warning(f"配置文件不存在: {config_path}")

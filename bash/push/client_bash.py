@@ -22,8 +22,14 @@ from bash.push.log import LogType, log
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 config_path = os.path.join(project_root, 'config', 'env_config.ini')
 config = configparser.ConfigParser()
-config.read(config_path)
-picture_num = int(config.get('bash', 'picture_num'))
+config.read(config_path, encoding='utf-8')
+
+# 获取当前环境并读取对应的picture_num
+env = config.get("environment", "execution_env", fallback="").strip().lower()
+if env not in {"fat", "prod"}:
+    raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+env_bash_section = f"{env}-bash"
+picture_num = int(config.get(env_bash_section, 'picture_num'))
 
 
 # 常量定义
@@ -113,20 +119,25 @@ class ResourceLoader:
         device_no = ""
         if os.path.exists(config_path):
             config = configparser.ConfigParser()
-            config.read(config_path)
-            if 'Inspection' in config:
-                try:
-                    miai_product_code = config.get('Inspection', 'miai-product-code')
-                    log(f"成功读取miai-product-code: {miai_product_code}", LogType.INFO)
-                except configparser.NoOptionError:
-                    log(f"配置文件中缺少miai-product-code字段", LogType.WARNING)
-                try:
-                    device_no = config.get('Inspection', 'device_no')
-                    log(f"成功读取device_no: {device_no}", LogType.INFO)
-                except configparser.NoOptionError:
-                    log(f"配置文件中缺少device_no字段", LogType.WARNING)
-            else:
-                log(f"配置文件中缺少Inspection节", LogType.WARNING)
+            config.read(config_path, encoding='utf-8')
+
+            # 获取当前环境
+            env = config.get("environment", "execution_env", fallback="").strip().lower()
+            if env not in {"fat", "prod"}:
+                raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+            # 从对应环境节读取
+            env_section = f"{env}-yixiu"
+            try:
+                miai_product_code = config.get(env_section, 'miai-product-code')
+                log(f"成功读取miai-product-code: {miai_product_code}", LogType.INFO)
+            except configparser.NoOptionError:
+                log(f"配置文件{env_section}中缺少miai-product-code字段", LogType.WARNING)
+            try:
+                device_no = config.get(env_section, 'device_no')
+                log(f"成功读取device_no: {device_no}", LogType.INFO)
+            except configparser.NoOptionError:
+                log(f"配置文件{env_section}中缺少device_no字段", LogType.WARNING)
         else:
             log(f"配置文件不存在: {config_path}", LogType.WARNING)
 
@@ -166,22 +177,28 @@ class ResourceLoader:
         device_no = ""
         if os.path.exists(config_path):
             config = configparser.ConfigParser()
-            config.read(config_path)
-            if 'Inspection' in config:
-                try:
-                    miai_product_code = config.get('Inspection', 'miai-product-code')
-                    log(f"成功读取miai-product-code: {miai_product_code}", LogType.INFO)
-                except configparser.NoOptionError:
-                    log(f"配置文件中缺少miai-product-code字段", LogType.WARNING)
-                try:
-                    device_no = config.get('Inspection', 'device_no')
-                    log(f"成功读取device_no: {device_no}", LogType.INFO)
-                except configparser.NoOptionError:
-                    log(f"配置文件中缺少device_no字段", LogType.WARNING)
-            else:
-                log(f"配置文件中缺少Inspection节", LogType.WARNING)
+            config.read(config_path, encoding='utf-8')
+
+            # 获取当前环境
+            env = config.get("environment", "execution_env", fallback="").strip().lower()
+            if env not in {"fat", "prod"}:
+                raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+            # 从对应环境节读取
+            env_section = f"{env}-yixiu"
+            try:
+                miai_product_code = config.get(env_section, 'miai-product-code')
+                log(f"成功读取miai-product-code: {miai_product_code}", LogType.INFO)
+            except configparser.NoOptionError:
+                log(f"配置文件{env_section}中缺少miai-product-code字段", LogType.WARNING)
+            try:
+                device_no = config.get(env_section, 'device_no')
+                log(f"成功读取device_no: {device_no}", LogType.INFO)
+            except configparser.NoOptionError:
+                log(f"配置文件{env_section}中缺少device_no字段", LogType.WARNING)
         else:
             log(f"配置文件不存在: {config_path}", LogType.WARNING)
+
         # 3. 获取原始参数路径
         params_path = get_relative_path('json', 'params_data.json')
 

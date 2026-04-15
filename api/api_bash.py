@@ -4,15 +4,25 @@ bash系统相关接口
 import os
 import configparser
 import requests
-from api import api_space
+from api import api_space, api_login
 from common.Request_Response import ApiClient
 
-# bash_fat = "http://fat-bash-gw.svfactory.com:6180"
-# 从配置文件读取bash_fat值
+# 从配置文件读取bash地址，根据execution_env动态切换
 config = configparser.ConfigParser()
 config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
 config.read(config_path, encoding='utf-8')
-bash_fat = config.get('bash', 'bash_fat')
+
+# 获取当前环境
+env = config.get("environment", "execution_env", fallback="").strip().lower()
+if env not in {"fat", "prod"}:
+    raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+# 动态读取对应环境的bash配置
+bash_section = f"{env}-bash"
+if env == "fat":
+    bash_fat = config.get(bash_section, "bash_fat")
+elif env == "prod":
+    bash_fat = config.get(bash_section, "bash_prod")
 
 class ApiBashSample:
     def __init__(self, client: ApiClient):

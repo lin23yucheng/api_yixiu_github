@@ -1,12 +1,12 @@
 {
-    "access_token": "SnHFuyZ9Xy6BXJyQTL30oHUpQbdEIn+j8DCasKP0y0aIo1Tb/alSuFUy3OQv63WL1s2SLtcEXWLWHTUpUK7XpxzgayrzHGKWu2Tlq8maU1t3q/t2r+qvAoaG8XqK4IU6wEdTM3UBnW+gxzk2ZRL040KfMsyaLCbhlUjqUf2EyK0ccAiod0qZw2GiFBskG/fZ",
-    "device_no": "aaa",
-    "product_name": "sd123",
+    "access_token": "QEtAbkFmQKPl9Pnsk7RmOAVEtjOWbZI8+5V+DETTsBUkPPyjllDoR7nTLG4fE+1xKMy1L2C3F6KwiwHYt4sct0ujOoSGtUpJK29RJCQQZ+1H9OV7C0typHdeQv9rG5DIySTazL1mdtVzmEfGtFER4rX/UOtJKXZXqniLr9Lr2ubQa+/DO29me+JC+79c7DmQgF6ejs2b1rSE5zHozhkLQw==",
+    "device_no": "JHOCT001",
+    "product_name": "JHOCT001",
     "optical_side_id": 18,
     "width": 2448,
     "height": 2048,
     "encoded_image_path": "bash2/images/",
-    "image_header": "-sd123-01-02-03-04-",
+    "image_header": "-JHOCT001-01-02-03-04-",
     "model_version": "1",
     "request_type": "normal",
     "DetectionResult": [

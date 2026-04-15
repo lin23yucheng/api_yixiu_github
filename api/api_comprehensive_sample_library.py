@@ -62,12 +62,20 @@ class ApiComprehensiveSampleLibrary:
         import configparser
         import json
         import os
+        import ast
 
         config = configparser.ConfigParser()
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
         config.read(config_path, encoding='utf-8')
 
-        classify_types = eval(config.get('class_ids', 'classify_type'))
+        # 获取当前环境
+        env_name = config.get("environment", "execution_env", fallback="").strip().lower()
+        if env_name not in {"fat", "prod"}:
+            raise ValueError(f"execution_env 配置错误: {env_name}，仅支持 fat 或 prod")
+
+        # 从对应环境节读取classify_type
+        env_section = f"{env_name}-yixiu"
+        classify_types = ast.literal_eval(config.get(env_section, 'classify_type'))
 
         # 验证列表长度，如果不足则报错
         if len(classify_types) < 2:
