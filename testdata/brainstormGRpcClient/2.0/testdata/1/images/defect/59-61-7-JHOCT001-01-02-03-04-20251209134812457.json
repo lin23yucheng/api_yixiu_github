@@ -1,0 +1,303 @@
+{
+    "version": "1.0",
+    "imageData": null,
+    "imageWidth": 2640,
+    "imageHeight": 1680,
+    "imageDepth": 1,
+    "imagePath": "59-61-7-JHOCT001-01-02-03-04-20251209134812457.jpg",
+    "bashRes": null,
+    "finalRes": null,
+    "deepRes": null,
+    "dataRes": null,
+    "bashUserId": null,
+    "shapes": [
+        {
+            "label": "yashang-QX-S4-00",
+            "disputeResult": null,
+            "disputeProcessTime": null,
+            "score": null,
+            "length": null,
+            "width": 1,
+            "radius": "",
+            "flags": {},
+            "tag": null,
+            "points": [
+                [
+                    2420.4247104247106,
+                    504.13127413127415
+                ],
+                [
+                    2420.965250965251,
+                    499.53667953667957
+                ],
+                [
+                    2421.505791505792,
+                    494.942084942085
+                ],
+                [
+                    2422.0463320463323,
+                    490.6177606177606
+                ],
+                [
+                    2424.2084942084944,
+                    486.83397683397686
+                ],
+                [
+                    2425.830115830116,
+                    486.5637065637066
+                ],
+                [
+                    2429.0733590733594,
+                    489.53667953667957
+                ],
+                [
+                    2429.0733590733594,
+                    492.7799227799228
+                ],
+                [
+                    2429.0733590733594,
+                    495.21235521235525
+                ],
+                [
+                    2429.0733590733594,
+                    497.9150579150579
+                ],
+                [
+                    2429.6138996139,
+                    500.6177606177606
+                ],
+                [
+                    2429.6138996139,
+                    506.5637065637066
+                ],
+                [
+                    2428.532818532819,
+                    508.1853281853282
+                ],
+                [
+                    2427.1814671814673,
+                    508.996138996139
+                ],
+                [
+                    2423.667953667954,
+                    508.72586872586874
+                ],
+                [
+                    2422.3166023166027,
+                    507.3745173745174
+                ]
+            ],
+            "id": "1793089818762747906",
+            "cut_id": null,
+            "deep_result": null,
+            "data_result": null,
+            "is_final": null,
+            "pixel_area": null,
+            "if_model": false,
+            "model_info": null,
+            "labeller_info": {
+                "name": "13815019153",
+                "date": "2024-05-22 09:21:41"
+            },
+            "shape_type": "polygon",
+            "labelType": null,
+            "group_id": null,
+            "merge_type": null,
+            "need_cut": null,
+            "gt_label": null,
+            "pre_label": null,
+            "type": null,
+            "post_process_label": null
+        },
+        {
+            "label": "yashang-QX-S4-00",
+            "disputeResult": null,
+            "disputeProcessTime": null,
+            "score": null,
+            "length": null,
+            "width": 1,
+            "radius": "",
+            "flags": {},
+            "tag": null,
+            "points": [
+                [
+                    2418.2625482625485,
+                    438.1853281853282
+                ],
+                [
+                    2417.992277992278,
+                    433.0501930501931
+                ],
+                [
+                    2417.992277992278,
+                    427.6447876447877
+                ],
+                [
+                    2420.4247104247106,
+                    421.42857142857144
+                ],
+                [
+                    2425.2895752895756,
+                    419.80694980694983
+                ],
+                [
+                    2430.1544401544406,
+                    422.50965250965254
+                ],
+                [
+                    2430.1544401544406,
+                    425.4826254826255
+                ],
+                [
+                    2429.0733590733594,
+                    430.6177606177606
+                ],
+                [
+                    2429.34362934363,
+                    434.4015444015444
+                ],
+                [
+                    2429.34362934363,
+                    437.9150579150579
+                ],
+                [
+                    2428.532818532819,
+                    442.2393822393823
+                ],
+                [
+                    2424.478764478765,
+                    445.75289575289577
+                ],
+                [
+                    2421.776061776062,
+                    446.56370656370655
+                ],
+                [
+                    2419.34362934363,
+                    444.942084942085
+                ],
+                [
+                    2419.0733590733594,
+                    443.3204633204633
+                ]
+            ],
+            "id": "1793089818762747907",
+            "cut_id": null,
+            "deep_result": null,
+            "data_result": null,
+            "is_final": null,
+            "pixel_area": null,
+            "if_model": false,
+            "model_info": null,
+            "labeller_info": {
+                "name": "13815019153",
+                "date": "2024-05-22 09:21:41"
+            },
+            "shape_type": "polygon",
+            "labelType": null,
+            "group_id": null,
+            "merge_type": null,
+            "need_cut": null,
+            "gt_label": null,
+            "pre_label": null,
+            "type": null,
+            "post_process_label": null
+        },
+        {
+            "label": "yashang-QX-S4-00",
+            "disputeResult": null,
+            "disputeProcessTime": null,
+            "score": null,
+            "length": null,
+            "width": 1,
+            "radius": "",
+            "flags": {},
+            "tag": null,
+            "points": [
+                [
+                    2418.85961591844,
+                    616.9319571672513
+                ],
+                [
+                    2416.526282585107,
+                    621.2652905005847
+                ],
+                [
+                    2414.85961591844,
+                    624.5986238339179
+                ],
+                [
+                    2413.85961591844,
+                    630.5986238339179
+                ],
+                [
+                    2413.85961591844,
+                    632.2652905005847
+                ],
+                [
+                    2416.85961591844,
+                    633.5986238339179
+                ],
+                [
+                    2420.1929492517734,
+                    633.2652905005847
+                ],
+                [
+                    2422.526282585107,
+                    630.9319571672513
+                ],
+                [
+                    2423.1929492517734,
+                    628.2652905005847
+                ],
+                [
+                    2424.1929492517734,
+                    625.2652905005847
+                ],
+                [
+                    2426.526282585107,
+                    620.2652905005847
+                ],
+                [
+                    2427.1929492517734,
+                    616.9319571672513
+                ],
+                [
+                    2422.1929492517734,
+                    615.9319571672513
+                ]
+            ],
+            "id": "1793089818762747908",
+            "cut_id": null,
+            "deep_result": null,
+            "data_result": null,
+            "is_final": null,
+            "pixel_area": null,
+            "if_model": false,
+            "model_info": null,
+            "labeller_info": {
+                "name": "13815019153",
+                "date": "2024-05-22 09:21:41"
+            },
+            "shape_type": "polygon",
+            "labelType": null,
+            "group_id": null,
+            "merge_type": null,
+            "need_cut": null,
+            "gt_label": null,
+            "pre_label": null,
+            "type": null,
+            "post_process_label": null
+        }
+    ],
+    "detectionArea": null,
+    "detectionAreaType": null,
+    "detectionComment": null,
+    "imageOffsetTop": 0.0,
+    "imageOffsetLeft": 0.0,
+    "label": "ok",
+    "cls": "",
+    "score": 0,
+    "top_point": null,
+    "time_Labeled": "2024-05-22"
+}
