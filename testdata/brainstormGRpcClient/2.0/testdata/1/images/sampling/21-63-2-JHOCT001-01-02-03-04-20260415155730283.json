@@ -1,0 +1,17 @@
+{
+    "version": 1,
+    "imageWidth": 3000,
+    "imageHeight": 3000,
+<<<<<<<< HEAD:testdata/brainstormGRpcClient/2.0/testdata/1/images/sampling/52-27-7-JHOCT001-01-02-03-04-20260413173202706.json
+    "imagePath": "52-27-7-JHOCT001-01-02-03-04-20260413173202706.jpg",
+========
+    "imagePath": "21-63-2-JHOCT001-01-02-03-04-20260415155730283.jpg",
+>>>>>>>> 6e9699c (合并fat和prod，修改配置文件可直接切换环境):testdata/brainstormGRpcClient/2.0/testdata/1/images/sampling/21-63-2-JHOCT001-01-02-03-04-20260415155730283.json
+    "imageData": null,
+    "bashRes": "OK",
+    "finalRes": "OK",
+    "deepRes": "OK",
+    "dataRes": "OK",
+    "shapes": [],
+    "protoVersion": "4.0.0"
+}
