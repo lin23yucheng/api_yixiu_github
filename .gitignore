@@ -16,3 +16,4 @@ venv
 
 # 屏蔽日志文件
 *.log
+/testdata/brainstormGRpcClient/2.0/testdata/1/images/
