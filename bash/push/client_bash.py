@@ -31,13 +31,16 @@ if env not in {"fat", "prod"}:
 env_bash_section = f"{env}-bash"
 picture_num = int(config.get(env_bash_section, 'picture_num'))
 
+# 根据环境映射默认GRPC请求编号: fat->1, prod->2
+DEFAULT_ADDRESS_NO_BY_ENV = {"fat": 1, "prod": 2}
+
 
 # 常量定义
 class Constants:
     IS_CROP = 2
     DETECTION_AREA_TYPE = 2
     SYSTEM_TYPE = 1
-    DEFAULT_ADDRESS_NO = 1  # GRPC请求编号
+    DEFAULT_ADDRESS_NO = DEFAULT_ADDRESS_NO_BY_ENV[env]  # GRPC请求编号 1：fat  2：prod
     DEFAULT_THREADS = 1  # 线程数
     DEFAULT_LOOPS = picture_num  # 循环数
 

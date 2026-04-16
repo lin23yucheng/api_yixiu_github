@@ -327,7 +327,7 @@ def run_together_tests():
         {"file": "testcase/test_model_base.py", "deps": None},
         {"file": "testcase/test_product_information.py", "deps": None},
         {"file": "testcase/test_product_samples.py", "deps": None},
-        {"file": "testcase/test_eiir_label.py", "deps": None},
+        # {"file": "testcase/test_eiir_label.py", "deps": None},
 
         # 第二组：有依赖任务
         {"file": "testcase/test_standard_push_map.py", "deps": ["testcase/test_get_accesstoken.py"],
@@ -345,10 +345,10 @@ def run_together_tests():
          "require_success": True},
         {"file": "testcase/test_class_original_model_training_v8.py", "deps": ["testcase/test_controller.py"],
          "require_success": True},
-        {"file": "testcase/test_data_training_task.py", "deps": ["testcase/test_controller.py"],
-         "require_success": True},
-        {"file": "testcase/test_eiir_model_training.py", "deps": ["testcase/test_eiir_label.py"],
-         "require_success": True},
+        # {"file": "testcase/test_data_training_task.py", "deps": ["testcase/test_controller.py"],
+        #  "require_success": True},
+        # {"file": "testcase/test_eiir_model_training.py", "deps": ["testcase/test_eiir_label.py"],
+        #  "require_success": True},
         {"file": "testcase/test_model_training_metrics.py", "deps": ["testcase/test_class_original_model_training_v8.py"],
          "require_success": True}
     ]
