@@ -17,7 +17,6 @@ token = login.login()
 
 
 # 代码推送
-# git push gitlab main
 # git push origin main
 # git push github main
 
