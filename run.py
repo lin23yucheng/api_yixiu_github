@@ -320,7 +320,7 @@ def run_together_tests():
 
     # 定义任务依赖关系
     tasks = [
-        # 第一组：无依赖任务（并行执行）
+        # 第一组：无依赖任务
         {"file": "testcase/test_bash.py", "deps": None},
         {"file": "testcase/test_get_accesstoken.py", "deps": None},
         {"file": "testcase/test_controller.py", "deps": None},
