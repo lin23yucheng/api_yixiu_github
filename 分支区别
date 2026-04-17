@@ -1,0 +1,12 @@
+env_config.ini：
+grpc_command命令不同，windwos和linux执行程序不同
+
+testdata：
+windows推图程序main.exe，linux推图程序go-main
+
+test_bash_ui.py：
+windows环境和linux环境浏览器启动不同
+
+browser_pool.py：
+windows环境和linux环境浏览器启动不同
+

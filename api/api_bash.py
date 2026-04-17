@@ -24,6 +24,7 @@ if env == "fat":
 elif env == "prod":
     bash_fat = config.get(bash_section, "bash_prod")
 
+
 class ApiBashSample:
     def __init__(self, client: ApiClient):
         self.client = client
