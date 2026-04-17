@@ -1,0 +1,42 @@
+settings:
+  application:
+    # 服务名称
+    name: miai-brainstorm-grpc-service
+    # 服务器ip，默认使用 0.0.0.0
+    host: 0.0.0.0
+    # 端口号
+    port: 8000 # 服务端口号
+    # 一休云平台服务地址miai-brainstorm-service
+    CloudBrainstormService: http://localhost:55008
+    grpc:
+      # grpc端口号
+      address: fat-yixiu-brainstorm-grpc.svfactory.com:9180
+      readtimeout: 1
+      writertimeout: 2
+      MaxRecvMsgSize: 1073741824
+      MaxSendMsgSize: 1073741824
+    minio:
+      Bucket: lupinus
+      Endpoint: 172.16.112.100:9000
+      AccessKeyID: minio
+      SecretAccessKey: 7lbLJpj8
+      UseSSL: false
+    redis:
+      MaxIdle: 16
+      MaxActive: 5
+      IdleTimeout: 3000
+      Address: 172.16.100.159:6379
+      Password: SvfR3d18
+      Database: 5
+    aes:
+      key: jkl;POIU1234++==
+    pprof:
+      enable: false
+      port: 6060
+      listenEnableSecond: 10
+    opentracing:
+      enable: false
+      agentHost: localhost:6831
+      sampler:
+        type: const
+        param: 1
