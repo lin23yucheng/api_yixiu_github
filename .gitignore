@@ -19,3 +19,6 @@ venv
 __pycache__/
 *.pyc
 testdata/dataset/
+testdata/brainstormGRpcClient/2.0/testdata/1/**
+bash/json/params_data.json
+testdata/accessToken.txt
