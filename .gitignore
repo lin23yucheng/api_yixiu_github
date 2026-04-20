@@ -18,3 +18,4 @@ venv
 *.log
 __pycache__/
 *.pyc
+testdata/dataset/
