@@ -15,9 +15,13 @@ from api.api_space import ApiSpace
 
 assertions = Assert.Assertions()
 
-# 读取配置
+# 获取项目根目录（基于当前脚本位置）
+PROJECT_ROOT = Path(__file__).parent.parent
+
+# 读取配置 - 使用绝对路径
+config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
 config = configparser.ConfigParser()
-config.read("./config/env_config.ini", encoding="utf-8")
+config.read(config_path, encoding="utf-8")
 
 # 获取当前环境并从对应环境节读取
 _env = config.get("environment", "execution_env", fallback="").strip().lower()

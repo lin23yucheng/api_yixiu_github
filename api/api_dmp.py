@@ -43,7 +43,7 @@ class ApiDmp:
             },
             "page": {
                 "pageIndex": 1,
-                "pageSize": 10
+                "pageSize": 100
             }
         }
         return self.client.post_with_retry(url, json=payload)

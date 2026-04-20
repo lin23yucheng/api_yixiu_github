@@ -195,6 +195,7 @@ def run_order_tests():
     test_files = [
         "testcase/test_get_accesstoken.py",
         "testcase/test_standard_push_map.py",
+        "testcase/test_3D_label.py",
         # "testcase/test_bash.py",
         # "testcase/test_bash_ui.py",
         # "testcase/test_2D_label.py"

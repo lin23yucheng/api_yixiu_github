@@ -2,7 +2,9 @@
 DMP获取机台token流程
 """
 import os
+import json
 import configparser
+from pathlib import Path
 import pytest
 import allure
 from common import Assert
@@ -19,6 +21,19 @@ class TestGetAccessToken:
         cls.client = ApiClient(base_headers={})
         cls.api_dmp = api_dmp.ApiDmp(cls.client)
         cls.machine_id = None
+
+    @staticmethod
+    def _get_active_yixiu_section(config):
+        """根据 execution_env 返回当前一休环境节名。"""
+        env = config.get("environment", "execution_env", fallback="").strip().lower()
+        if env not in {"fat", "prod"}:
+            raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
+
+        env_section = f"{env}-yixiu"
+        if not config.has_section(env_section):
+            raise ValueError(f"配置文件缺少节: [{env_section}]")
+
+        return env_section
 
     @staticmethod
     def _replace_ini_key_in_section(file_path, section_name, key, value):
@@ -92,28 +107,29 @@ class TestGetAccessToken:
 
     @staticmethod
     def write_device_no_to_config(device_no):
-        config_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "config",
-            "env_config.ini"
-        )
+        config_path = str(Path(__file__).resolve().parents[1] / "config" / "env_config.ini")
         config = configparser.ConfigParser()
         config.read(config_path, encoding="utf-8")
 
-        # 获取当前环境并写入对应节的device_no
-        env = config.get("environment", "execution_env", fallback="").strip().lower()
-        if env not in {"fat", "prod"}:
-            raise ValueError(f"execution_env 配置错误: {env}，仅支持 fat 或 prod")
-
-        # 写入对应环境节的device_no（仅替换目标键，不重写整个INI，保留注释和格式）
-        env_section = f"{env}-yixiu"
+        # 获取当前环境并写入对应环境节的 device_no
+        env_section = TestGetAccessToken._get_active_yixiu_section(config)
         TestGetAccessToken._replace_ini_key_in_section(
             file_path=config_path,
             section_name=env_section,
             key="device_no",
             value=str(device_no),
         )
-        return config_path
+
+        # 回读校验，确保写入的是当前环境对应节
+        verify_config = configparser.ConfigParser()
+        verify_config.read(config_path, encoding="utf-8")
+        actual_device_no = verify_config.get(env_section, "device_no", fallback="").strip()
+        if actual_device_no != str(device_no):
+            raise AssertionError(
+                f"device_no 写入失败，目标节[{env_section}]期望={device_no}，实际={actual_device_no}"
+            )
+
+        return config_path, env_section
 
     @allure.story("获取机台token")
     def test_get_machine_token(self):
@@ -170,12 +186,26 @@ class TestGetAccessToken:
             if not machine_list:
                 pytest.fail("机器管理列表为空，无法获取sn")
 
-            machine_no = machine_list[-1].get("sn")
-            if not machine_no:
-                pytest.fail("最后一条机器数据sn为空")
+            target_machine = next(
+                (item for item in machine_list if str(item.get("machineId")) == str(self.machine_id)),
+                None,
+            )
+            if not target_machine:
+                pytest.fail(f"未在机器管理列表中找到 machineId={self.machine_id} 对应的数据，无法获取sn")
 
-            config_path = self.write_device_no_to_config(machine_no)
+            allure.attach(
+                json.dumps(target_machine, ensure_ascii=False, indent=2),
+                name="目标机器信息",
+                attachment_type=allure.attachment_type.JSON,
+            )
+
+            machine_no = target_machine.get("sn")
+            if not machine_no:
+                pytest.fail(f"machineId={self.machine_id} 对应机器数据sn为空")
+
+            config_path, env_section = self.write_device_no_to_config(machine_no)
             allure.attach(str(machine_no), name="写入device_no", attachment_type=allure.attachment_type.TEXT)
+            allure.attach(env_section, name="写入配置节", attachment_type=allure.attachment_type.TEXT)
             allure.attach(config_path, name="配置文件路径", attachment_type=allure.attachment_type.TEXT)
 
         with allure.step("步骤4：下载机台token"):
