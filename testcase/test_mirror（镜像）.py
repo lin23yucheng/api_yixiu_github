@@ -11,7 +11,7 @@ IMAGE_CONFIG = {
     1: "",  # yolo训练
     2: "",  # yolo模型格式转换
     3: "",  # yolo测试
-    4: "mtl-sidecar-image:20260401100153-294-fat",  # 边端监控sidecar-image
+    4: "mtl-sidecar-image:20260421132455-296-fat",  # 边端监控sidecar-image
     5: "",  # 切图
     6: "",  # 训练
     7: "",  # triton推理
@@ -26,7 +26,7 @@ IMAGE_CONFIG = {
 IMAGE_REGISTRY_PREFIX = "hub.svfactory.com.cn:6443/ty/"
 
 
-@allure.feature("场景：自动化贴镜像")
+@allure.feature("场景：自动贴镜像")
 class TestMirror:
     @classmethod
     def setup_class(cls):
