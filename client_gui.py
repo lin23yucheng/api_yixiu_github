@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import argparse
 import queue
 import threading
 import subprocess
@@ -75,6 +76,32 @@ def _load_test_run_module():
 TEST_RUN = _load_test_run_module()
 
 
+def _maybe_run_internal_worker_cli(argv=None):
+    """Hidden worker entry for frozen subprocess execution (no GUI)."""
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--internal-worker", action="store_true")
+    parser.add_argument("--worker-test-file", default=None)
+    parser.add_argument("--worker-allure-results", default=None)
+    args, _ = parser.parse_known_args(argv)
+
+    if not args.internal_worker:
+        return False
+
+    if not args.worker_test_file or not args.worker_allure_results:
+        print("WORKER_PARAM_ERROR=missing worker-test-file or worker-allure-results")
+        sys.exit(2)
+
+    try:
+        TEST_RUN.ensure_runtime_env_vars()
+        exit_code = TEST_RUN.execute_test(args.worker_test_file, args.worker_allure_results)
+    except Exception as exc:
+        print(f"WORKER_EXCEPTION={exc}\n{traceback.format_exc()}")
+        exit_code = 2
+
+    print(f"WORKER_EXIT_CODE={exit_code}")
+    sys.exit(exit_code)
+
+
 class QueueWriter:
     def __init__(self, out_queue):
         self.out_queue = out_queue
@@ -97,8 +124,9 @@ class ClientApp:
     def __init__(self, root):
         self.root = root
         self.root.title("一休云测试客户端")
-        self.root.geometry("1220x820")
+        # self.root.geometry("1080x720")
         self.root.minsize(1080, 720)
+        self.root.state('zoomed')
 
         self.process = None
         self.run_thread = None
@@ -120,6 +148,7 @@ class ClientApp:
         self.together_manual_selected = set()
         self.together_auto_required_count = {}
         self.together_task_map = {item["file"]: item for item in TEST_RUN.TOGETHER_TASKS}
+        self.together_dep_closure_map = self._build_together_dep_closure_map()
 
         self.picture_num_var = tk.IntVar(value=self._safe_default_picture_num("fat"))
         self.address_no_var = tk.IntVar(value=1)
@@ -157,6 +186,28 @@ class ClientApp:
         btn.pack(fill=tk.X, pady=3)
         return btn
 
+    def _create_grid_toggle_button(self, parent, text, variable, command, row, column):
+        btn = tk.Checkbutton(
+            parent,
+            text=text,
+            variable=variable,
+            command=command,
+            indicatoron=False,
+            anchor="w",
+            padx=10,
+            pady=6,
+            relief="raised",
+            bd=1,
+            selectcolor="#4472C4",
+            activebackground="#E8F4F8",
+            bg="white",
+            activeforeground="#1F4E78",
+            font=("Microsoft YaHei UI", 10),
+            cursor="hand2"
+        )
+        btn.grid(row=row, column=column, sticky="ew", padx=3, pady=3)
+        return btn
+
     def _safe_default_picture_num(self, env):
         try:
             return TEST_RUN.get_picture_num_by_env(env)
@@ -174,6 +225,26 @@ class ClientApp:
         except Exception:
             return {"space_name": "", "space_id": "", "product_code": ""}
 
+    def _build_together_dep_closure_map(self):
+        closure_map = {}
+        for file_path in self.together_task_map:
+            deps = set()
+            try:
+                resolved = TEST_RUN.resolve_together_tasks([file_path])
+                deps = {item["file"] for item in resolved if item["file"] != file_path}
+            except Exception:
+                # 回退到本地DFS，确保递归依赖仍可用
+                stack = list((self.together_task_map.get(file_path) or {}).get("deps") or [])
+                while stack:
+                    dep = stack.pop()
+                    if dep in deps:
+                        continue
+                    deps.add(dep)
+                    dep_task = self.together_task_map.get(dep) or {}
+                    stack.extend(dep_task.get("deps") or [])
+            closure_map[file_path] = deps
+        return closure_map
+
     def _build_ui(self):
         self._setup_style()
 
@@ -183,8 +254,8 @@ class ClientApp:
 
         env_group = ttk.LabelFrame(top, text="环境选择", padding=10, style="Option.TLabelframe")
         env_group.pack(side=tk.LEFT, padx=(0, 15))
-        ttk.Radiobutton(env_group, text="FAT", variable=self.env_var, value="fat", command=self._on_env_change).pack(side=tk.LEFT, padx=8)
-        ttk.Radiobutton(env_group, text="PROD", variable=self.env_var, value="prod", command=self._on_env_change).pack(side=tk.LEFT, padx=8)
+        ttk.Radiobutton(env_group, text="FAT-测试环境", variable=self.env_var, value="fat", command=self._on_env_change).pack(side=tk.LEFT, padx=8)
+        ttk.Radiobutton(env_group, text="PROD-生产环境", variable=self.env_var, value="prod", command=self._on_env_change).pack(side=tk.LEFT, padx=8)
 
         mode_group = ttk.LabelFrame(top, text="执行模式", padding=10, style="Option.TLabelframe")
         mode_group.pack(side=tk.LEFT, padx=(0, 15), expand=True)
@@ -217,7 +288,7 @@ class ClientApp:
 
         status_frame = ttk.Frame(self.root)
         status_frame.pack(fill=tk.X, padx=10)
-        ttk.Label(status_frame, text="状态:", font=("Microsoft YaHei UI", 10, "bold")).pack(side=tk.LEFT)
+        ttk.Label(status_frame, text="执行状态:", font=("Microsoft YaHei UI", 10, "bold")).pack(side=tk.LEFT)
         self.status_var = tk.StringVar(value="待执行")
         self.status_label = tk.Label(
             status_frame,
@@ -228,7 +299,7 @@ class ClientApp:
             anchor="w",
         )
         self.status_label.pack(side=tk.LEFT, padx=(8, 0))
-        ttk.Label(status_frame, text="  报告:", font=("Microsoft YaHei UI", 10, "bold")).pack(side=tk.LEFT, padx=(16, 0))
+        ttk.Label(status_frame, text="  Allure报告:", font=("Microsoft YaHei UI", 10, "bold")).pack(side=tk.LEFT, padx=(16, 0))
         report_label = tk.Label(
             status_frame,
             textvariable=self.report_var,
@@ -242,14 +313,23 @@ class ClientApp:
         report_label.bind("<Button-1>", self._open_report_url)
 
         # === 可拖拽主体区 ===
-        body = ttk.Panedwindow(self.root, orient=tk.VERTICAL)
+        body = tk.PanedWindow(
+            self.root,
+            orient=tk.VERTICAL,
+            sashrelief=tk.RAISED,
+            sashwidth=8,
+            showhandle=True,
+            handlesize=8,
+            bg="#D6D6D6",
+            bd=0,
+        )
         body.pack(fill=tk.BOTH, expand=True, padx=10, pady=(8, 10))
 
         # 选项区（上部）
         mode_panel = ttk.Frame(body)
         self.mode_frame = ttk.Frame(mode_panel)
         self.mode_frame.pack(fill=tk.BOTH, expand=True)
-        body.add(mode_panel, weight=2)
+        body.add(mode_panel, minsize=260, stretch="always")
 
         # 日志区（下部）
         log_frame = ttk.LabelFrame(body, text="执行日志", padding=10, style="Log.TLabelframe")
@@ -268,12 +348,14 @@ class ClientApp:
             selectbackground="#4472C4"
         )
         self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.log_text.bind("<ButtonPress-2>", lambda event: self.log_text.scan_mark(event.x, event.y))
+        self.log_text.bind("<B2-Motion>", lambda event: self.log_text.scan_dragto(event.x, event.y, gain=1))
 
         scrollbar = ttk.Scrollbar(log_content, orient=tk.VERTICAL, command=self.log_text.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.log_text.configure(yscrollcommand=scrollbar.set)
 
-        body.add(log_frame, weight=1)
+        body.add(log_frame, minsize=180)
 
     def _set_status(self, text, color=None):
         self.status_var.set(text)
@@ -285,8 +367,6 @@ class ClientApp:
 
         # 颜色定义
         primary_bg = "#F5F5F5"
-        highlight_bg = "#E8F4F8"
-        button_bg = "#4472C4"
         button_fg = "white"
 
         # 主窗口背景
@@ -330,6 +410,18 @@ class ClientApp:
             "Action.TButton",
             foreground=[("pressed", button_fg), ("active", button_fg)],
             background=[("pressed", "#2F5496"), ("active", "#5B8FD9")]
+        )
+
+        style.configure(
+            "ReadonlyGrpc.TEntry",
+            foreground="#666666",
+            fieldbackground="#D9D9D9",
+            background="#D9D9D9"
+        )
+        style.map(
+            "ReadonlyGrpc.TEntry",
+            fieldbackground=[("readonly", "#D9D9D9")],
+            foreground=[("readonly", "#666666")]
         )
 
         # 单选按钮
@@ -412,24 +504,32 @@ class ClientApp:
             self._build_push_area()
 
     def _build_order_area(self):
-        left, left_content = self._build_scrollable_checklist(self.mode_frame, "📋 待执行模块(点击勾选)")
+        left, left_content = self._build_scrollable_checklist(self.mode_frame, "📋 待执行模块")
         left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 8))
 
-        right = ttk.LabelFrame(self.mode_frame, text="✓ 执行顺序", padding=10, style="Option.TLabelframe")
-        right.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        right = ttk.LabelFrame(self.mode_frame, text="📋 执行顺序", padding=10, style="Option.TLabelframe")
+        right.configure(width=360)
+        right.pack(side=tk.LEFT, fill=tk.Y)
+        right.pack_propagate(False)
 
-        for item in TEST_RUN.ORDER_TEST_MODULES:
+        columns = 4
+        for col in range(columns):
+            left_content.grid_columnconfigure(col, weight=1, uniform="order_col")
+
+        for idx, item in enumerate(TEST_RUN.ORDER_TEST_MODULES):
             file_path = item["file"]
             var = self.order_vars.get(file_path)
             if var is None:
                 var = tk.IntVar(value=0)
                 self.order_vars[file_path] = var
 
-            self._create_toggle_button(
+            self._create_grid_toggle_button(
                 left_content,
                 text=item['name'],
                 variable=var,
-                command=lambda f=file_path: self._toggle_order_item(f)
+                command=lambda f=file_path: self._toggle_order_item(f),
+                row=idx // columns,
+                column=idx % columns,
             )
 
         self.order_listbox = tk.Listbox(
@@ -462,6 +562,11 @@ class ClientApp:
     def _refresh_order_listbox(self):
         if not hasattr(self, "order_listbox"):
             return
+        try:
+            if not self.order_listbox.winfo_exists():
+                return
+        except tk.TclError:
+            return
         self.order_listbox.delete(0, tk.END)
         for idx, file_path in enumerate(self.order_selection_order, start=1):
             name = next((x["name"] for x in TEST_RUN.ORDER_TEST_MODULES if x["file"] == file_path), file_path)
@@ -474,6 +579,14 @@ class ClientApp:
         with_dep, with_dep_content = self._build_scrollable_checklist(self.mode_frame, "◇ 有依赖任务(自动勾选依赖)")
         with_dep.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+        columns = 4
+        for col in range(columns):
+            no_dep_content.grid_columnconfigure(col, weight=1, uniform="together_no_dep_col")
+            with_dep_content.grid_columnconfigure(col, weight=1, uniform="together_with_dep_col")
+
+        no_dep_index = 0
+        with_dep_index = 0
+
         for item in TEST_RUN.TOGETHER_TASKS:
             file_path = item["file"]
             var = self.together_vars.get(file_path)
@@ -482,21 +595,34 @@ class ClientApp:
                 self.together_vars[file_path] = var
 
             label = item['name']
-            target = with_dep_content if item.get("deps") else no_dep_content
-            self._create_toggle_button(
-                target,
-                text=label,
-                variable=var,
-                command=lambda f=file_path: self._toggle_together_item(f)
-            )
+            if item.get("deps"):
+                self._create_grid_toggle_button(
+                    with_dep_content,
+                    text=label,
+                    variable=var,
+                    command=lambda f=file_path: self._toggle_together_item(f),
+                    row=with_dep_index // columns,
+                    column=with_dep_index % columns,
+                )
+                with_dep_index += 1
+            else:
+                self._create_grid_toggle_button(
+                    no_dep_content,
+                    text=label,
+                    variable=var,
+                    command=lambda f=file_path: self._toggle_together_item(f),
+                    row=no_dep_index // columns,
+                    column=no_dep_index % columns,
+                )
+                no_dep_index += 1
 
     def _toggle_together_item(self, file_path):
         is_checked = self.together_vars[file_path].get() == 1
-        task = self.together_task_map[file_path]
+        deps = self.together_dep_closure_map.get(file_path, set())
 
         if is_checked:
             self.together_manual_selected.add(file_path)
-            for dep in task.get("deps") or []:
+            for dep in deps:
                 self.together_auto_required_count[dep] = self.together_auto_required_count.get(dep, 0) + 1
                 self.together_vars[dep].set(1)
         else:
@@ -509,7 +635,7 @@ class ClientApp:
             if file_path in self.together_manual_selected:
                 self.together_manual_selected.remove(file_path)
 
-            for dep in task.get("deps") or []:
+            for dep in deps:
                 old = self.together_auto_required_count.get(dep, 0)
                 if old > 1:
                     self.together_auto_required_count[dep] = old - 1
@@ -525,8 +651,16 @@ class ClientApp:
         config_frame = ttk.Frame(frame)
         config_frame.pack(fill=tk.X, pady=6)
 
-        ttk.Label(config_frame, text="GRPC编号(按环境自动):", font=("Microsoft YaHei UI", 10)).grid(row=0, column=0, sticky=tk.W, padx=8, pady=6)
-        grpc_readonly = ttk.Entry(config_frame, textvariable=self.address_no_var, width=12, font=("Microsoft YaHei UI", 10), state="readonly")
+        ttk.Label(config_frame, text="GRPC编号(按环境自动带入):", font=("Microsoft YaHei UI", 10)).grid(row=0, column=0, sticky=tk.W, padx=8, pady=6)
+        grpc_readonly = ttk.Entry(
+            config_frame,
+            textvariable=self.address_no_var,
+            width=12,
+            font=("Microsoft YaHei UI", 10),
+            state="readonly",
+            style="ReadonlyGrpc.TEntry",
+            cursor="arrow"
+        )
         grpc_readonly.grid(row=0, column=1, sticky=tk.W, padx=8, pady=6)
 
         ttk.Label(config_frame, text="推图数量:", font=("Microsoft YaHei UI", 10)).grid(row=0, column=2, sticky=tk.W, padx=8, pady=6)
@@ -762,8 +896,7 @@ class ClientApp:
             self.log_text.insert(tk.END, f">>> mode={kwargs['mode']} env={kwargs['env']}\n")
             self.log_text.insert(tk.END, f">>> order_files={kwargs['order_files']} together_files={kwargs['together_files']}\n\n")
             self.log_text.see(tk.END)
-            self.start_btn.configure(state=tk.DISABLED)
-            self.stop_btn.configure(state=tk.NORMAL)
+            self._set_running_controls(True)
             self._set_status("执行中")
             self.run_thread = threading.Thread(target=self._run_in_process_worker, args=(kwargs,), daemon=True)
             self.run_thread.start()
@@ -785,8 +918,7 @@ class ClientApp:
             bufsize=1,
         )
 
-        self.start_btn.configure(state=tk.DISABLED)
-        self.stop_btn.configure(state=tk.NORMAL)
+        self._set_running_controls(True)
         self._set_status("执行中")
 
         threading.Thread(target=self._read_output_worker, daemon=True).start()
@@ -794,7 +926,7 @@ class ClientApp:
 
     def stop_execution(self):
         if self.run_thread is not None:
-            messagebox.showinfo("提示", "打包版内置执行暂不支持中断，请等待当前任务结束。")
+            messagebox.showinfo("提示", "打包版内置执行暂不支持中断，如需终止可关闭客户端，重新启动")
             return
         if self.process is None:
             return
@@ -803,18 +935,24 @@ class ClientApp:
 
     def reset_selection(self):
         if self.process is not None or self.run_thread is not None:
-            messagebox.showwarning("提示", "执行中不能重置选择，请先停止或等待完成")
+            messagebox.showwarning("提示", "执行中不能重置选择，请先等待任务完成")
             return
 
         for var in self.order_vars.values():
             var.set(0)
         self.order_selection_order.clear()
-        self._refresh_order_listbox()
+        if self.mode_var.get() == "order":
+            self._refresh_order_listbox()
 
-        for var in self.together_vars.values():
-            var.set(0)
+        self.together_vars = {
+            item["file"]: tk.IntVar(value=0)
+            for item in TEST_RUN.TOGETHER_TASKS
+        }
         self.together_manual_selected.clear()
         self.together_auto_required_count.clear()
+
+        # 重建当前模式区域，确保并行模式下按钮视觉状态与变量状态一致
+        self._refresh_mode_area()
 
     def _run_in_process_worker(self, kwargs):
         writer = QueueWriter(self.output_queue)
@@ -851,8 +989,7 @@ class ClientApp:
             if isinstance(item, tuple) and item and item[0] == "_PROCESS_DONE_":
                 self.process = None
                 self.run_thread = None
-                self.start_btn.configure(state=tk.NORMAL)
-                self.stop_btn.configure(state=tk.DISABLED)
+                self._set_running_controls(False)
                 code = item[1]
                 if code == 0:
                     self._set_status("执行成功", color="#2E7D32")
@@ -879,8 +1016,19 @@ class ClientApp:
             self.log_text.insert(tk.END, f"\n停止进程失败: {e}\n")
             self.log_text.see(tk.END)
 
+    def _set_running_controls(self, is_running):
+        if is_running:
+            self.start_btn.configure(text="⏳ 执行中...", state=tk.DISABLED)
+            self.stop_btn.configure(state=tk.NORMAL)
+        else:
+            self.start_btn.configure(text="▶  开始执行", state=tk.NORMAL)
+            self.stop_btn.configure(state=tk.DISABLED)
+
 
 def main():
+    if _maybe_run_internal_worker_cli(sys.argv[1:]):
+        return
+
     root = tk.Tk()
     root.title("一休云测试客户端 v2.0")
 

@@ -498,9 +498,18 @@ def execute_test(test_file, allure_results):
             MyLog.error(f"插件模块加载失败 {module_name}: {exc}")
             return False
 
+    def _has_order_marker(file_path):
+        try:
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                return "@pytest.mark.order" in f.read()
+        except Exception:
+            return False
+
     has_allure_plugin = _can_import_module("allure_pytest.plugin")
     has_random_order_plugin = _can_import_module("random_order.plugin")
+    has_pytest_order_plugin = _can_import_module("pytest_order.plugin")
     use_explicit_plugin_load = getattr(sys, "frozen", False)
+    has_order_marker = _has_order_marker(target_path)
 
     # 执行参数（插件参数按可用性动态启用，避免打包后参数无法识别）
     log_file = os.path.join(str(test_workspace), 'pytest.log')
@@ -524,10 +533,19 @@ def execute_test(test_file, allure_results):
     else:
         MyLog.error("未检测到 allure_pytest 插件，已跳过 --alluredir 参数")
 
+    if has_pytest_order_plugin and use_explicit_plugin_load:
+        pytest_args.extend(["-p", "pytest_order.plugin"])
+
+    if has_order_marker and not has_pytest_order_plugin:
+        MyLog.error("检测到 @pytest.mark.order，但未检测到 pytest-order 插件，顺序标记可能不生效")
+
     if has_random_order_plugin:
-        if use_explicit_plugin_load:
-            pytest_args.extend(["-p", "random_order.plugin"])
-        pytest_args.extend(["--random-order"])
+        if has_order_marker:
+            MyLog.info(f"检测到顺序标记，跳过随机执行: {test_file}")
+        else:
+            if use_explicit_plugin_load:
+                pytest_args.extend(["-p", "random_order.plugin"])
+            pytest_args.extend(["--random-order"])
     else:
         MyLog.error("未检测到 random_order(pytest-random-order) 插件，已跳过 --random-order 参数")
 
@@ -783,10 +801,10 @@ def run_together_tests(tasks=None):
     workers = []
 
     try:
-        # 冻结后使用多进程会触发子进程重新拉起 GUI，这里强制改为线程并行执行
+        # 冻结后使用 multiprocessing.Process 可能重新拉起 GUI，改为子进程 worker 并行执行
         use_threads = getattr(sys, "frozen", False)
         if use_threads:
-            MyLog.info("检测到打包环境，使用线程并行执行以避免重复拉起客户端窗口")
+            MyLog.info("检测到打包环境，使用子进程worker并行执行")
 
         # 收集所有需要管理的文件（包括任务文件和依赖文件）
         all_files = set()
@@ -797,32 +815,108 @@ def run_together_tests(tasks=None):
                     all_files.add(dep)
 
         if use_threads:
-            event_dict = {test_file: threading.Event() for test_file in all_files}
+            # 打包环境通过隐藏 worker 参数启动同一 EXE 的无界面子进程执行单文件测试。
             result_dict = {test_file: None for test_file in all_files}
+            pending_files = {task["file"] for task in tasks}
+            task_map = {task["file"]: dict(task) for task in tasks}
+            running = {}
 
-            for test_file in all_files:
-                MyLog.info(f"初始化事件和结果字典 for: {test_file}")
+            creationflags = 0
+            if os.name == "nt":
+                creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
-            for task in tasks:
-                t = threading.Thread(
-                    target=process_task,
-                    args=(
-                        task["file"],
-                        task.get("deps", []),
-                        task.get("require_success", False),
-                        event_dict,
-                        result_dict,
-                        allure_results,
-                    ),
-                    daemon=True,
-                )
-                t.start()
-                workers.append(t)
-                MyLog.info(f"启动线程执行 {task['file']}")
+            while pending_files or running:
+                progressed = False
 
-            for t in workers:
-                t.join()
-                MyLog.info("线程完成")
+                # 启动当前可执行的任务（依赖已满足）
+                for file in list(pending_files):
+                    task = task_map[file]
+                    deps = task.get("deps") or []
+
+                    if any(result_dict.get(dep) is None for dep in deps):
+                        continue
+
+                    require_success = task.get("require_success", False)
+                    if require_success and any(result_dict.get(dep) != 0 for dep in deps):
+                        MyLog.info(f"跳过 {file}，因为依赖任务失败")
+                        result_dict[file] = -1
+                        pending_files.remove(file)
+                        progressed = True
+                        continue
+
+                    bad_dep = False
+                    if not require_success:
+                        for dep in deps:
+                            dep_result = result_dict.get(dep)
+                            if dep_result == -1 or (isinstance(dep_result, int) and dep_result > 1):
+                                bad_dep = True
+                                break
+                    if bad_dep:
+                        MyLog.info(f"跳过 {file}，因为依赖任务未完成")
+                        result_dict[file] = -1
+                        pending_files.remove(file)
+                        progressed = True
+                        continue
+
+                    cmd = [
+                        sys.executable,
+                        "--internal-worker",
+                        "--worker-test-file", file,
+                        "--worker-allure-results", str(allure_results),
+                    ]
+                    MyLog.info(f"启动worker子进程执行任务: {file}")
+                    proc = subprocess.Popen(
+                        cmd,
+                        cwd=PROJECT_ROOT,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
+                        text=True,
+                        encoding="utf-8",
+                        errors="replace",
+                        bufsize=1,
+                        creationflags=creationflags,
+                    )
+
+                    # 实时转发 worker 输出到当前进程 stdout（GUI 已将其重定向到日志队列）
+                    task_label = os.path.basename(file)
+
+                    def _forward(p=proc, label=task_label):
+                        try:
+                            for line in p.stdout:
+                                print(f"[{label}] {line}", end="", flush=True)
+                        except Exception:
+                            pass
+
+                    t = threading.Thread(target=_forward, daemon=True)
+                    t.start()
+
+                    running[file] = proc
+                    pending_files.remove(file)
+                    progressed = True
+
+                # 回收已完成任务
+                finished_files = []
+                for file, proc in list(running.items()):
+                    ret = proc.poll()
+                    if ret is None:
+                        continue
+                    result_dict[file] = ret
+                    MyLog.info(f"worker子进程完成: {file}, exit_code={ret}")
+                    finished_files.append(file)
+
+                for file in finished_files:
+                    running.pop(file, None)
+                    progressed = True
+
+                if pending_files and not running and not progressed:
+                    # 理论上不应进入，兜底避免死循环
+                    for file in list(pending_files):
+                        MyLog.error(f"任务依赖无法解析，跳过: {file}")
+                        result_dict[file] = -1
+                        pending_files.remove(file)
+
+                if pending_files or running:
+                    time.sleep(0.2)
         else:
             with Manager() as manager:
                 event_dict = manager.dict()
