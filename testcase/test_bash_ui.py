@@ -44,15 +44,8 @@ class TestBashUI:
 
         # 推图线程控制
         cls.push_thread = None
+        cls.grpc_mock = None
         cls.push_completed = threading.Event()
-
-    @staticmethod
-    def run_push_client():
-        """运行推图客户端"""
-        try:
-            push_images_auto()  # 调用非测试函数
-        except Exception as e:
-            allure.attach(f"推图失败: {str(e)}", name="错误", attachment_type=allure.attachment_type.TEXT)
 
     @allure.story("启动推图&分拣图片")
     def test_seat_operation(self):
@@ -133,10 +126,9 @@ class TestBashUI:
                 raise AssertionError(f"申请坐席后状态应为'我已坐席'，实际为: {status_text.text}")
 
         with allure.step("步骤3：启动推图客户端"):
-            # 创建并启动推图线程
-            self.push_thread = threading.Thread(target=self.run_push_client)
-            self.push_thread.daemon = True  # 设置为守护线程
-            self.push_thread.start()
+            # push_images_auto 内部已启动线程，这里只保存可控对象
+            self.grpc_mock = push_images_auto()
+            self.push_thread = getattr(self.grpc_mock, "worker_thread", None)
             allure.attach("推图客户端已启动", name="推图启动", attachment_type=allure.attachment_type.TEXT)
 
             # 添加等待，确保推图线程初始化完成
@@ -216,6 +208,16 @@ class TestBashUI:
 
     @classmethod
     def teardown_class(cls):
+        # 先停止推图线程，避免残留后台请求影响下一次执行
+        try:
+            if cls.grpc_mock is not None:
+                cls.grpc_mock.stop()
+                worker = getattr(cls.grpc_mock, "worker_thread", None)
+                if worker and worker.is_alive():
+                    worker.join(timeout=3)
+        except Exception as e:
+            print(f"停止推图线程时警告: {e}")
+
         # 仅在浏览器实例存在时执行清理
         if cls.driver and hasattr(cls.driver, 'service') and cls.driver.service.is_connectable():
             try:

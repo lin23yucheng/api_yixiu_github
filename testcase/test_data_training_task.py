@@ -1,9 +1,7 @@
-# ... existing code ...
 """
 数据训练任务接口自动化流程
 """
 import ast
-import os
 import pytest
 import allure
 import psycopg2
@@ -11,6 +9,7 @@ import configparser
 import time
 from common.Request_Response import ApiClient
 from common import Assert
+from common.path_utils import get_resource_path
 from api import api_login, api_comprehensive_sample_library, api_data_training_tasks
 
 assertions = Assert.Assertions()
@@ -37,7 +36,7 @@ class TestDataTrainingTask:
         cls.poll_interval = 10
         cls.dataAlgorithmTrainTaskId = None
         # 读取配置文件
-        config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'env_config.ini')
+        config_path = get_resource_path('config', 'env_config.ini')
         config = configparser.ConfigParser()
         config.read(config_path, encoding='utf-8')
 
@@ -144,7 +143,7 @@ class TestDataTrainingTask:
     def _delete_data_algorithm_via_db(self):
         """通过数据库逻辑删除数据算法包"""
         config = configparser.ConfigParser()
-        config_path = os.path.join(os.getcwd(), 'config', 'env_config.ini')
+        config_path = get_resource_path('config', 'env_config.ini')
         config.read(config_path, encoding='utf-8')
 
         # 获取当前环境并从对应环境节读取数据库配置

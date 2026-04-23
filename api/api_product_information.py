@@ -4,6 +4,7 @@
 import time
 from api import api_login
 from common.Log import MyLog
+from common.path_utils import get_testdata_path
 from common.Request_Response import ApiClient
 
 env = api_login.url
@@ -17,7 +18,7 @@ class ApiProductInformation:
     # 上传PDF文件
     def upload_pdf(self) -> str:
         url = env + "/miai/brainstorm/knowledgeproductdata/uploadData"
-        file_path = "testdata/pdf文件上传.PDF"
+        file_path = get_testdata_path("pdf文件上传.PDF")
 
         try:
             with open(file_path, 'rb') as file:

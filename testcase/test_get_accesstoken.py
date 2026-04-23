@@ -4,12 +4,14 @@ DMP获取机台token流程
 import os
 import json
 import configparser
+import importlib
 from pathlib import Path
 import pytest
 import allure
 from common import Assert
 from common.Request_Response import ApiClient
-from api import api_dmp, api_login
+from api import api_dmp as api_dmp_module
+from api import api_login as api_login_module
 
 assertions = Assert.Assertions()
 
@@ -19,7 +21,10 @@ class TestGetAccessToken:
     @classmethod
     def setup_class(cls):
         cls.client = ApiClient(base_headers={})
-        cls.api_dmp = api_dmp.ApiDmp(cls.client)
+        # 强制重载环境相关模块，避免 GUI 同进程切换 fat/prod 后沿用旧配置
+        cls.api_login = importlib.reload(api_login_module)
+        cls.api_dmp_module = importlib.reload(api_dmp_module)
+        cls.api_dmp = cls.api_dmp_module.ApiDmp(cls.client)
         cls.machine_id = None
 
     @staticmethod
@@ -134,13 +139,13 @@ class TestGetAccessToken:
     @allure.story("获取机台token")
     def test_get_machine_token(self):
         with allure.step("步骤1：登录dmp系统"):
-            token = api_login.ApiLogin().login()
+            token = self.api_login.ApiLogin().login()
             if not token:
                 pytest.fail("DMP登录失败，token为空")
 
             self.client.base_headers["Authorization"] = token
-            self.client.base_headers["Miai-Product-Code"] = api_login.code
-            self.client.base_headers["Miaispacemanageid"] = api_login.manageid
+            self.client.base_headers["Miai-Product-Code"] = self.api_login.code
+            self.client.base_headers["Miaispacemanageid"] = self.api_login.manageid
             allure.attach(token, name="DMP Token", attachment_type=allure.attachment_type.TEXT)
 
         with allure.step("步骤2：查询机器管理"):

@@ -80,13 +80,18 @@ class ResourceLoader:
         return cls._certs
 
     @classmethod
-    def get_params(cls):
+    def get_params(cls, force_reload=False):
         """加载参数配置"""
-        if cls._params is None:
+        if force_reload or cls._params is None:
             params_path = get_relative_path('json', 'params_data.json')
             with open(params_path, encoding='utf-8') as f:
                 cls._params = json.load(f)
         return cls._params
+
+    @classmethod
+    def reset_params_cache(cls):
+        """清空参数缓存，避免同进程多轮执行复用旧参数。"""
+        cls._params = None
 
     @classmethod
     def get_config(cls, config_data=None):
@@ -226,6 +231,8 @@ class ResourceLoader:
         try:
             with open(params_path, 'w', encoding='utf-8') as f:
                 json.dump(params, f, indent=4, ensure_ascii=False)
+            # 同步更新内存缓存，避免后续读取旧值
+            cls._params = params
             log(f"成功更新参数文件: {params_path}", LogType.INFO)
             return True
         except Exception as e:
@@ -271,7 +278,7 @@ class BashGrpcMock:
 
         # 加载证书和配置
         certs = ResourceLoader.get_certs()
-        self.result = ResourceLoader.get_params()  # 使用静态加载的参数
+        self.result = ResourceLoader.get_params(force_reload=True)
 
         # 创建gRPC通道
         creds = grpc.ssl_channel_credentials(**certs)
@@ -297,6 +304,8 @@ class BashGrpcMock:
     # 处理单个请求(可修改光学面号等参数)
     def _process_single_request(self):
         """处理单个请求"""
+        # 每次请求前强制重读参数，确保 token/device_no 与当前文件一致
+        self.result = ResourceLoader.get_params(force_reload=True)
         now_time = time.time() * 1000
         now_str = (time.strftime("%Y%m%d%H%M%S", time.localtime(now_time / 1000))
                    + f"{now_time % 1000:03.0f}")
@@ -521,6 +530,7 @@ def push_images_manual(config_data=None):
     config = ResourceLoader.get_config(config_data)
 
     # === 新增：在启动前更新JSON文件 ===
+    ResourceLoader.reset_params_cache()
     update_result = ResourceLoader.update_params_json()
     if not update_result:
         print("警告：参数文件更新失败，使用现有配置继续执行")
@@ -543,6 +553,7 @@ def push_images_auto(config_data=None):
     config = ResourceLoader.get_config(config_data)
 
     # === 新增：在启动前更新JSON文件 ===
+    ResourceLoader.reset_params_cache()
     update_result = ResourceLoader.update_params_json()
     if not update_result:
         print("警告：参数文件更新失败，使用现有配置继续执行")
@@ -560,6 +571,7 @@ def push_images_auto(config_data=None):
     # 启动推图线程
     push_thread = threading.Thread(target=grpc_mock.run)
     push_thread.start()
+    grpc_mock.worker_thread = push_thread
 
     # 返回推图实例以便控制
     return grpc_mock

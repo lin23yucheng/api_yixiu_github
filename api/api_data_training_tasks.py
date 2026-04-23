@@ -5,6 +5,7 @@ import os
 import time
 import requests
 from api import api_login, api_space
+from common.path_utils import get_testdata_path
 from common.Request_Response import ApiClient
 
 env = api_login.url
@@ -55,7 +56,7 @@ class ApiDataTrainTasks:
     # 上传数据算法
     def upload_data_algorithm(self, data_task_id):
         url = f"{env}/miai/brainstorm/datalg/dataalgorithmmodel/uploadDataAlgorithm"
-        model_file_path = "testdata/数据模型.zip"
+        model_file_path = get_testdata_path("数据模型.zip")
 
         # 验证文件
         if not os.path.exists(model_file_path):

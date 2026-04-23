@@ -3,6 +3,7 @@
 """
 import time
 from api import api_login
+from common.path_utils import get_testdata_path
 from common.Request_Response import ApiClient
 
 env = api_login.url
@@ -16,7 +17,7 @@ class ApiProductSamples:
     # 上传图片
     def upload_pictures(self):
         url = env + "/miai/brainstorm/knowledgeproductsample/upload"
-        file_path = "testdata/上传图片.jpg"
+        file_path = get_testdata_path("上传图片.jpg")
 
         with open(file_path, 'rb') as file:
             # 构造文件上传参数，键名需与接口期望的键一致

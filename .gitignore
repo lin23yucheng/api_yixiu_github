@@ -16,9 +16,13 @@ venv
 
 # 屏蔽日志文件
 *.log
-__pycache__/
 *.pyc
+__pycache__/
 testdata/dataset/
 testdata/brainstormGRpcClient/2.0/testdata/1/**
 bash/json/params_data.json
 testdata/accessToken.txt
+
+# 屏蔽客户端构建输出目录
+build/
+dist/
