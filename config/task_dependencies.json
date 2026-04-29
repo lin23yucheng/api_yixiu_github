@@ -1,0 +1,125 @@
+{
+  "require_success": true,
+  "tasks": [
+    {
+      "name": "验证Bash系统",
+      "file": "testcase/test_bash.py",
+      "deps": []
+    },
+    {
+      "name": "DMP系统获取机台Token",
+      "file": "testcase/test_get_accesstoken.py",
+      "deps": []
+    },
+    {
+      "name": "模型训练前置数据校验",
+      "file": "testcase/test_controller.py",
+      "deps": []
+    },
+    {
+      "name": "模型库流程",
+      "file": "testcase/test_model_base.py",
+      "deps": []
+    },
+    {
+      "name": "产品资料流程",
+      "file": "testcase/test_product_information.py",
+      "deps": []
+    },
+    {
+      "name": "产品样例流程",
+      "file": "testcase/test_product_samples.py",
+      "deps": []
+    },
+    {
+      "name": "EIIR标注流程",
+      "file": "testcase/test_eiir_label.py",
+      "deps": []
+    },
+    {
+      "name": "机台推图",
+      "file": "testcase/test_standard_push_map.py",
+      "deps": [
+        "testcase/test_get_accesstoken.py"
+      ]
+    },
+    {
+      "name": "Bash自动化分拣流程",
+      "file": "testcase/test_bash_ui.py",
+      "deps": [
+        "testcase/test_bash.py",
+        "testcase/test_get_accesstoken.py"
+      ]
+    },
+    {
+      "name": "单产品-2D标注流程",
+      "file": "testcase/test_2D_label.py",
+      "deps": [
+        "testcase/test_bash_ui.py"
+      ]
+    },
+    {
+      "name": "单产品-3D标注流程",
+      "file": "testcase/test_3D_label.py",
+      "deps": [
+        "testcase/test_standard_push_map.py"
+      ]
+    },
+    {
+      "name": "目标检测模型训练-v8",
+      "file": "testcase/test_deep_model_training_v8.py",
+      "deps": [
+        "testcase/test_controller.py"
+      ]
+    },
+    {
+      "name": "目标检测模型训练-v11",
+      "file": "testcase/test_deep_model_training_v11.py",
+      "deps": [
+        "testcase/test_controller.py"
+      ]
+    },
+    {
+      "name": "目标检测模型训练-v12",
+      "file": "testcase/test_deep_model_training_v12.py",
+      "deps": [
+        "testcase/test_controller.py"
+      ]
+    },
+    {
+      "name": "分类切图模型训练-v8",
+      "file": "testcase/test_class_cut_model_training_v8.py",
+      "deps": [
+        "testcase/test_controller.py"
+      ]
+    },
+    {
+      "name": "分类大图模型训练-v8",
+      "file": "testcase/test_class_original_model_training_v8.py",
+      "deps": [
+        "testcase/test_controller.py"
+      ]
+    },
+    {
+      "name": "数据训练任务流程",
+      "file": "testcase/test_data_training_task.py",
+      "deps": [
+        "testcase/test_controller.py"
+      ]
+    },
+    {
+      "name": "EIIR模型训练流程",
+      "file": "testcase/test_eiir_model_training.py",
+      "deps": [
+        "testcase/test_eiir_label.py"
+      ]
+    },
+    {
+      "name": "实例分割模型训练指标对比",
+      "file": "testcase/test_model_training_metrics.py",
+      "deps": [
+        "testcase/test_class_original_model_training_v8.py"
+      ]
+    }
+  ]
+}

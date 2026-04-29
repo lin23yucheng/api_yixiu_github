@@ -2,11 +2,13 @@ import os
 import sys
 import time
 import json
+import re
 import pytest
 import shutil
 import psutil
 import signal
 from common.Log import MyLog, set_log_level
+from common.task_dependencies import build_together_tasks, resolve_task_dependencies
 from multiprocessing import Process, Manager
 
 # 单独执行推图使用
@@ -320,48 +322,46 @@ def run_together_tests():
     reset_logs()
     MyLog.info("===== 开始并行执行测试 =====")
 
-    # 定义任务依赖关系
-    tasks = [
-        # 第一组：无依赖任务
-        {"file": "testcase/test_bash.py", "deps": None},
-        {"file": "testcase/test_get_accesstoken.py", "deps": None},
-        {"file": "testcase/test_controller.py", "deps": None},
-        {"file": "testcase/test_model_base.py", "deps": None},
-        {"file": "testcase/test_product_information.py", "deps": None},
-        {"file": "testcase/test_product_samples.py", "deps": None},
-        {"file": "testcase/test_eiir_label.py", "deps": None},
-
-        # 第二组：有依赖任务
-        {"file": "testcase/test_standard_push_map.py", "deps": ["testcase/test_get_accesstoken.py"],
-         "require_success": True},
-        {"file": "testcase/test_bash_ui.py", "deps": ["testcase/test_bash.py", "testcase/test_get_accesstoken.py"],
-         "require_success": True},
-        {"file": "testcase/test_2D_label.py", "deps": ["testcase/test_bash_ui.py"], "require_success": True},
-        {"file": "testcase/test_3D_label.py", "deps": ["testcase/test_standard_push_map.py"], "require_success": True},
-        {"file": "testcase/test_deep_model_training_v8.py", "deps": ["testcase/test_controller.py"],
-         "require_success": True},
-        {"file": "testcase/test_deep_model_training_v11.py", "deps": ["testcase/test_controller.py"],
-         "require_success": True},
-        {"file": "testcase/test_deep_model_training_v12.py", "deps": ["testcase/test_controller.py"],
-         "require_success": True},
-        {"file": "testcase/test_class_cut_model_training_v8.py", "deps": ["testcase/test_controller.py"],
-         "require_success": True},
-        {"file": "testcase/test_class_original_model_training_v8.py", "deps": ["testcase/test_controller.py"],
-         "require_success": True},
-        {"file": "testcase/test_data_training_task.py", "deps": ["testcase/test_controller.py"],
-         "require_success": True},
-        {"file": "testcase/test_eiir_model_training.py", "deps": ["testcase/test_eiir_label.py"],
-         "require_success": True},
-        {"file": "testcase/test_model_training_metrics.py",
-         "deps": ["testcase/test_class_original_model_training_v8.py"],
-         "require_success": True}
-    ]
-
     # 添加项目根目录到Python路径
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-    # 配置报告路径
     base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # 在这里填写要执行的目标模块；留空表示执行全部任务
+    selected_test_files = [
+        "testcase/test_2D_label.py",
+    ]
+
+    # 可选：通过环境变量覆盖（逗号/空格/分号分隔）
+    env_selected = os.environ.get("PARALLEL_TEST_FILES", "").strip()
+    if env_selected:
+        selected_test_files = [
+            item.replace("\\", "/")
+            for item in re.split(r"[,;\s]+", env_selected)
+            if item.strip()
+        ]
+
+    # 从配置文件构建任务图，并根据输入任务自动补全依赖
+    try:
+        all_tasks = build_together_tasks(base_dir)
+        tasks = resolve_task_dependencies(
+            selected_test_files if selected_test_files else None,
+            all_tasks,
+            project_root=base_dir,
+        )
+    except Exception as e:
+        MyLog.critical(f"加载并行任务依赖失败: {e}")
+        print(f"并行任务依赖配置错误: {e}")
+        return
+
+    if selected_test_files:
+        MyLog.info(f"用户选择执行模块: {selected_test_files}")
+    else:
+        MyLog.info("未指定执行模块，将执行全部可发现任务")
+    MyLog.info(f"自动解析后的执行任务数: {len(tasks)}")
+    MyLog.info(f"自动解析后的执行顺序: {[task['file'] for task in tasks]}")
+
+    # 配置报告路径
     allure_results = os.path.join(base_dir, "report", "allure-results")
     allure_report = os.path.join(base_dir, "report", "allure-report")
 
@@ -375,6 +375,8 @@ def run_together_tests():
     start_time = time.time()
     start_time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time))
     MyLog.info(f"开始并行测试 at {start_time_str}")
+
+    processes = []
 
     try:
         # ==== 使用多进程替代多线程 ====
@@ -398,7 +400,6 @@ def run_together_tests():
                 MyLog.info(f"初始化事件和结果字典 for: {test_file}")
 
             # 创建并启动进程
-            processes = []
             for task in tasks:
                 p = Process(
                     target=process_task,  # 使用外部函数
