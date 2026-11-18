@@ -1,8 +1,8 @@
 # Public code export
 
 This repository contains sanitized source code and synthetic example identifiers.
-It has independent Git history. `GH_exclusive` is the publication branch;
-`main` mirrors the same sanitized commit for GitHub's default branch.
+It has independent Git history. `GH_exclusive` is the only GitHub branch and
+the default branch. Private main and regression branches live only on GitLab.
 
 ## Local configuration
 
@@ -30,8 +30,13 @@ the external client executable. Local configuration is ignored by Git.
 
 ## Updating this repository
 
-Updates must pass through the private allowlisted export tool. Do not merge,
-fetch or push private repository history here. The export tool scans for known
-private values and credential signatures, checks Python/JSON/INI syntax, and
-does not push automatically. New files and new kinds of sensitive content still
-require human review. Configure only the GitHub remote in this checkout.
+In the configured local repository, switch to `GH_exclusive`, edit the public
+code, commit, and run `git push`. Branch-specific push settings route this branch
+only to GitHub; private `main` and local `zadig` route only to GitLab.
+Commit or stash pending changes before switching branches. Commits do not sync
+automatically between branches. Do not merge private history into this branch.
+Transfer only reviewed, sanitized changes when updating code from private main.
+The local pre-push guard checks destinations, rejects private/merged history,
+and scans public commit contents for known private values and credential forms.
+Review new types of data manually as well. The guard is local configuration;
+it must be installed again on a new clone. Do not bypass it with `--no-verify`.
