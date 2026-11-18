@@ -1,6 +1,5 @@
 # Local configuration and authentication material
 config/env_config.ini
-config/secret.env
 config/*.local.*
 bash/json/config.json
 bash/json/params_data.json
