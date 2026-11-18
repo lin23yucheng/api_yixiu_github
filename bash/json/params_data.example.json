@@ -1,0 +1,13 @@
+{
+  "access_token": "",
+  "device_no": "DEMO001",
+  "product_name": "DEMO001",
+  "optical_side_id": 1,
+  "width": 100,
+  "height": 100,
+  "encoded_image_path": "bash/images/",
+  "image_header": "-DEMO001-01-02-03-04-",
+  "model_version": "1",
+  "request_type": "normal",
+  "DetectionResult": []
+}

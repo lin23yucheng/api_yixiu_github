@@ -1,0 +1,8 @@
+{
+  "channel": [
+    "fat-grpc.example.invalid:9181",
+    "prod-grpc.example.invalid:9181"
+  ],
+  "thread_num": 1,
+  "loop_num": 1
+}

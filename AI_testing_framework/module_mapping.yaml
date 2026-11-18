@@ -1,0 +1,121 @@
+# AI测试体系 - 模块映射配置
+# 维护说明：新增业务模块时在此添加，新增测试文件时更新对应模块的 test_files
+# 不依赖开发代码结构，基于测试视角维护
+
+modules:
+
+  bash_system:
+    name: Bash系统验证
+    keywords: ["bash", "分拣", "验证产品", "sorting", "seat"]
+    test_markers: ["bash_system"]
+    test_files: ["test_bash.py", "test_bash_ui.py"]
+
+  dmp_token:
+    name: DMP机台Token
+    keywords: ["token", "accesstoken", "机台", "dmp", "machine"]
+    test_markers: ["dmp_token"]
+    test_files: ["test_get_accesstoken.py"]
+
+  annotation_2d:
+    name: 2D标注
+    keywords: ["2d", "标注", "label", "切图", "2d_label"]
+    test_markers: ["annotation_2d"]
+    test_files: ["test_2D_label.py"]
+
+  annotation_3d:
+    name: 3D标注
+    keywords: ["3d", "标注", "3d_label", "点云"]
+    test_markers: ["annotation_3d"]
+    test_files: ["test_3D_label.py"]
+
+  training_deep:
+    name: 深度模型训练
+    keywords: ["训练", "train", "深度", "deep", "目标检测", "v8", "v11", "v12"]
+    test_markers: ["training_deep"]
+    test_files:
+      - "test_deep_model_training_v8.py"
+      - "test_deep_model_training_v11.py"
+      - "test_deep_model_training_v12.py"
+      - "test_deep_model_training_v8_datadriven.py"
+    algorithm_service:
+      service_name: "切图服务"
+      run_mode: "partial"
+      run_until: "create_complete"
+
+  training_class:
+    name: 分类模型训练
+    keywords: ["分类", "class", "切图模型", "大图模型", "分类切图", "分类大图"]
+    test_markers: ["training_class"]
+    test_files:
+      - "test_class_cut_model_training_v8.py"
+      - "test_class_original_model_training_v8.py"
+
+  training_eiir:
+    name: EIIR模型训练
+    keywords: ["eiir", "EIIR"]
+    test_markers: ["training_eiir"]
+    test_files: ["test_eiir_label.py", "test_eiir_model_training.py"]
+
+  training_data:
+    name: 数据训练任务
+    keywords: ["数据训练", "data_training", "数据集训练"]
+    test_markers: ["training_data"]
+    test_files: ["test_data_training_task.py"]
+
+  training_metrics:
+    name: 模型训练指标
+    keywords: ["指标", "metrics", "指标对比", "mtl"]
+    test_markers: ["training_metrics"]
+    test_files: ["test_model_training_metrics.py"]
+    algorithm_service:
+      service_name: "训练服务"
+      run_mode: "full"
+
+  model_base:
+    name: 模型库
+    keywords: ["模型库", "model_base", "部署", "deployment"]
+    test_markers: ["model_base"]
+    test_files: ["test_model_base.py"]
+
+  product_info:
+    name: 产品资料
+    keywords: ["产品", "product", "资料", "pdf", "产品信息"]
+    test_markers: ["product_info"]
+    test_files: ["test_product_information.py"]
+
+  product_samples:
+    name: 产品样例
+    keywords: ["样例", "samples", "产品样例"]
+    test_markers: ["product_samples"]
+    test_files: ["test_product_samples.py"]
+
+  push_map:
+    name: 机台推图
+    keywords: ["推图", "push", "grpc", "standard_push"]
+    test_markers: ["push_map"]
+    test_files: ["test_standard_push_map.py"]
+
+  controller:
+    name: 训练前置数据校验
+    keywords: ["前置", "controller", "数据校验", "训练数据"]
+    test_markers: ["controller"]
+    test_files: ["test_controller.py"]
+
+  simulation:
+    name: 仿真
+    keywords: ["仿真", "simulation", "atlas"]
+    test_markers: ["simulation"]
+    test_files: ["test_simulation（仿真）.py"]
+
+
+# 算法服务发布映射（确定性规则，不需要AI判断）
+# 格式：服务名 → 要跑的测试模块 + 运行模式
+algorithm_services:
+  切图服务:
+    module: "training_deep"
+    run_mode: "partial"
+    run_until: "create_complete"
+  训练服务:
+    module: "training_metrics"
+    run_mode: "full"
+  # 新增算法服务在这里添加即可

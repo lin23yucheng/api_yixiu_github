@@ -1,0 +1,17 @@
+[
+  {
+    "name": "撤回样本-ES插入中重试",
+    "endpoint_pattern": "*/revocation/*",
+    "msg_contains": "当前数据集正在插入到es,无法删除",
+    "reason": "接口支持重试，第一次请求时ES正在插入数据属于预期中间状态，后续重试会成功",
+    "downgrade_to": "INFO"
+  },
+  {
+    "name": "生成下载数据包-正常响应无data字段",
+    "endpoint_pattern": "*/dataAlgorithmCollect/createCollectTask/*",
+    "msg_contains": "操作成功",
+    "reason": "createCollectTask接口正常响应即为{'code': 200, 'msg': '操作成功', 'success': true}，无data字段符合预期",
+    "downgrade_to": "INFO"
+  }
+]
+

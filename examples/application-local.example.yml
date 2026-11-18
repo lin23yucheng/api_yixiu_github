@@ -1,0 +1,24 @@
+settings:
+  application:
+    name: example-grpc-client
+    host: 0.0.0.0
+    port: 8000
+    CloudBrainstormService: https://service.example.invalid
+    grpc:
+      address: grpc.example.invalid:9181
+      readtimeout: 1
+      writertimeout: 2
+      MaxRecvMsgSize: 1073741824
+      MaxSendMsgSize: 1073741824
+    minio:
+      Bucket: example
+      Endpoint: storage.example.invalid:9000
+      AccessKeyID: CHANGE_ME_LOCALLY
+      SecretAccessKey: CHANGE_ME_LOCALLY
+      UseSSL: true
+    redis:
+      Address: redis.example.invalid:6379
+      Password: CHANGE_ME_LOCALLY
+      Database: 0
+    aes:
+      key: CHANGE_ME_LOCALLY

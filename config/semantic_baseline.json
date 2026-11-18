@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-09 14:29:41",
+  "source": "report/allure-results",
+  "endpoints": {
+    "GET Request Headers: {}": {
+      "samples": 3,
+      "required_top_keys": [
+        "code",
+        "data",
+        "msg",
+        "success"
+      ],
+      "required_data_keys": [
+        "list",
+        "orders",
+        "pageIndex",
+        "pageSize",
+        "pages",
+        "total"
+      ]
+    }
+  }
+}
